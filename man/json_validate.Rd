@@ -4,13 +4,16 @@
 \alias{json_validate}
 \title{Validate a json file}
 \usage{
-json_validate(json, schema)
+json_validate(json, schema, verbose = FALSE)
 }
 \arguments{
 \item{json}{Contents of a json object, or a filename containing one.}
 
 \item{schema}{Contents of the json schema, or a filename
 containing a schema.}
+
+\item{verbose}{Be verbose?  If \code{TRUE}, then an attribute
+"errors" will list validation failures as a data.frame}
 }
 \description{
 Validate a single json against a schema.  This is a convenience
