@@ -1,0 +1,17 @@
+Package: jsonvalidate
+Title: Validate JSON
+Version: 1.0.0
+Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
+    email = "rich.fitzjohn@gmail.com"),
+    person("Mathias", "Buus", role = "cph"))
+Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
+Description: Uses is-my-json-valid to validate JSON against a schema.
+License: MIT + file LICENSE
+LazyData: true
+URL: https://github.com/ropenscilabs/jsonvalidate
+BugReports: https://github.com/ropenscilabs/jsonvalidate/issues
+Imports:
+  V8
+Suggests:
+  testthat
+RoxygenNote: 5.0.1
