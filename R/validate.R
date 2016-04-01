@@ -7,12 +7,25 @@
 json_validator <- function(schema) {
   name <- basename(tempfile("jv_"))
   env$ct$eval(sprintf("%s = validator(%s)", name, get_string(schema)))
-  ret <- function(json, verbose=FALSE, greedy=FALSE) {
+  ret <- function(json, verbose=FALSE, greedy=FALSE, error=FALSE) {
+    if (error) {
+      verbose <- TRUE
+    }
     res <- env$ct$call(name, V8::JS(get_string(json)),
                        list(verbose=verbose),
                        list(greedy=greedy))
     if (verbose) {
-      attr(res, "errors") <- env$ct$get(paste0(name, ".errors"))
+      errors <- env$ct$get(paste0(name, ".errors"))
+      if (error) {
+        n <- nrow(errors)
+        msg <- sprintf("%s %s validating json:\n%s",
+                       n, ngettext(n, "error", "errors"),
+                       paste(sprintf("\t- %s: %s", errors[[1]], errors[[2]]),
+                             collapse="\n"))
+        stop(msg, call.=FALSE)
+      } else {
+        attr(res, "errors") <- errors
+      }
     }
     res
   }
@@ -29,10 +42,11 @@ json_validator <- function(schema) {
 ##'   "errors" will list validation failures as a data.frame
 ##' @param greedy Continue after the first error?
 ##' @export
-json_validate <- function(json, schema, verbose=FALSE, greedy=FALSE) {
+json_validate <- function(json, schema, verbose=FALSE, greedy=FALSE,
+                          error=FALSE) {
   tmp <- json_validator(schema)
   on.exit(env$ct$eval(sprintf("delete %s", attr(tmp, "name"))))
-  tmp(json, verbose, greedy)
+  tmp(json, verbose, greedy, error)
 }
 
 get_string <- function(x) {

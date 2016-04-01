@@ -24,4 +24,8 @@ test_that("simple case works", {
   v <- json_validator(f)
   expect_false(v("{}"))
   expect_true(v("{hello: 'world'}"))
+
+  v <- json_validator("schema.json")
+  expect_error(v("{}", error=TRUE),
+               "data.hello: is required")
 })

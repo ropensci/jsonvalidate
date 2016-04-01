@@ -1,0 +1,10 @@
+{
+    required: true,
+    type: 'object',
+    properties: {
+        hello: {
+            required: true,
+            type: 'string'
+        }
+    }
+}
