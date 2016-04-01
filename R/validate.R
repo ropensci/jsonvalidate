@@ -17,12 +17,16 @@ json_validator <- function(schema) {
     if (verbose) {
       errors <- env$ct$get(paste0(name, ".errors"))
       if (error) {
-        n <- nrow(errors)
-        msg <- sprintf("%s %s validating json:\n%s",
-                       n, ngettext(n, "error", "errors"),
-                       paste(sprintf("\t- %s: %s", errors[[1]], errors[[2]]),
-                             collapse="\n"))
-        stop(msg, call.=FALSE)
+        if (is.null(errors)) {
+          return(NULL)
+        } else {
+          n <- nrow(errors)
+          msg <- sprintf("%s %s validating json:\n%s",
+                         n, ngettext(n, "error", "errors"),
+                         paste(sprintf("\t- %s: %s", errors[[1]], errors[[2]]),
+                               collapse="\n"))
+          stop(msg, call.=FALSE)
+        }
       } else {
         attr(res, "errors") <- errors
       }
