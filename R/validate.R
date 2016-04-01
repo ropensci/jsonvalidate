@@ -41,10 +41,15 @@ json_validator <- function(schema) {
 ##' wrapper around \code{json_validator(schema)(json)}
 ##' @title Validate a json file
 ##' @inheritParams json_validator
-##' @param json Contents of a json object, or a filename containing one.
+##' @param json Contents of a json object, or a filename containing
+##'   one.
 ##' @param verbose Be verbose?  If \code{TRUE}, then an attribute
 ##'   "errors" will list validation failures as a data.frame
 ##' @param greedy Continue after the first error?
+##' @param error Throw an error on parse failure?  If \code{TRUE},
+##'   then the function returns \code{NULL} on success (i.e., call
+##'   only for the side-effect of an error on failure, like
+##'   \code{stopifnot}).
 ##' @export
 json_validate <- function(json, schema, verbose=FALSE, greedy=FALSE,
                           error=FALSE) {

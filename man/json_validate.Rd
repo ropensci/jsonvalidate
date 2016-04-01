@@ -8,7 +8,8 @@ json_validate(json, schema, verbose = FALSE, greedy = FALSE,
   error = FALSE)
 }
 \arguments{
-\item{json}{Contents of a json object, or a filename containing one.}
+\item{json}{Contents of a json object, or a filename containing
+one.}
 
 \item{schema}{Contents of the json schema, or a filename
 containing a schema.}
@@ -17,6 +18,11 @@ containing a schema.}
 "errors" will list validation failures as a data.frame}
 
 \item{greedy}{Continue after the first error?}
+
+\item{error}{Throw an error on parse failure?  If \code{TRUE},
+then the function returns \code{NULL} on success (i.e., call
+only for the side-effect of an error on failure, like
+\code{stopifnot}).}
 }
 \description{
 Validate a single json against a schema.  This is a convenience
