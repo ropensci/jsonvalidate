@@ -21,5 +21,18 @@ check: build
 	@rm -f `ls -1tr ${PACKAGE}*gz | tail -n1`
 	@rm -rf ${PACKAGE}.Rcheck
 
+vignettes/jsonvalidate.Rmd: vignettes/src/jsonvalidate.R
+	${RSCRIPT} -e 'library(sowsear); sowsear("$<", output="$@")'
+vignettes: vignettes/jsonvalidate.Rmd
+	${RSCRIPT} -e 'library(methods); devtools::build_vignettes()'
+
+staticdocs:
+	@mkdir -p inst/staticdocs
+	${RSCRIPT} -e "library(methods); staticdocs::build_site()"
+	rm -f vignettes/*.html
+	@rmdir inst/staticdocs
+website: staticdocs
+	./update_web.sh
+
 # No real targets!
 .PHONY: all test document install vignettes
