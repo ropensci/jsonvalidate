@@ -1,2 +1,4 @@
 language: r
-cache: packages
+sudo: required
+apt_packages:
+    - libv8-dev
