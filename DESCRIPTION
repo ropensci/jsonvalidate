@@ -13,5 +13,8 @@ BugReports: https://github.com/ropenscilabs/jsonvalidate/issues
 Imports:
   V8
 Suggests:
+  knitr,
+  rmarkdown,
   testthat
 RoxygenNote: 5.0.1
+VignetteBuilder: knitr
