@@ -73,6 +73,6 @@ get_string <- function(x) {
 
 env <- new.env(parent=emptyenv())
 .onLoad <- function(libname, pkgname) {
-  env$ct <- V8::new_context()
+  env$ct <- V8::v8()
   env$ct$source(system.file("is-my-json-valid.js", package=.packageName))
 }
