@@ -7,3 +7,4 @@
 ^build\.sh$
 ^\.V8history$
 ^appveyor\.yml$
+^update_web\.sh$
