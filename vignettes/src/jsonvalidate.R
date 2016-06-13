@@ -9,7 +9,7 @@
 ##   %\VignetteEncoding{UTF-8}
 ## ---
 
-## + echo=FALSE, results="hide"
+##+ echo=FALSE, results="hide"
 knitr::opts_chunk$set(error=FALSE)
 
 ## This package wraps

@@ -9,8 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-+ echo=FALSE, results="hide"
-``` {r }
+``` {r echo=FALSE, results="hide"}
 knitr::opts_chunk$set(error=FALSE)
 ```
 
