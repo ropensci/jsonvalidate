@@ -5,7 +5,8 @@ Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
     email = "rich.fitzjohn@gmail.com"),
     person("Mathias", "Buus", role = "cph"))
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
-Description: Uses is-my-json-valid to validate JSON against a schema.
+Description: Uses the node library 'is-my-json-valid' to validate JSON against
+    a JSON schema.
 License: MIT + file LICENSE
 LazyData: true
 URL: https://github.com/ropenscilabs/jsonvalidate
