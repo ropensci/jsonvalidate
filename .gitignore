@@ -4,3 +4,5 @@
 .V8history
 inst/doc
 inst/web
+*.tar.gz
+cran-comments.md
