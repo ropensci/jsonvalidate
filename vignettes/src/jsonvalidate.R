@@ -187,5 +187,5 @@ json <- '{
 }'
 jsonvalidate::json_validate(json, schema)
 
-## + echo=FALSE, results="hide"
+##+ echo=FALSE, results="hide"
 file.remove("schema.json")
