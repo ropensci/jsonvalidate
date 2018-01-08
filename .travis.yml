@@ -1,4 +1,5 @@
 language: r
 sudo: required
+dist: trusty
 apt_packages:
     - libv8-dev
