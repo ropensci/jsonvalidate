@@ -9,8 +9,8 @@ Description: Uses the node library 'is-my-json-valid' to validate 'JSON' against
     a 'JSON' schema.
 License: MIT + file LICENSE
 LazyData: true
-URL: https://github.com/ropenscilabs/jsonvalidate
-BugReports: https://github.com/ropenscilabs/jsonvalidate/issues
+URL: https://github.com/ropensci/jsonvalidate
+BugReports: https://github.com/ropensci/jsonvalidate/issues
 Imports:
   V8
 Suggests:
