@@ -3,7 +3,8 @@ Title: Validate 'JSON'
 Version: 1.0.0
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
     email = "rich.fitzjohn@gmail.com"),
-    person("Mathias", "Buus", role = "cph"))
+    person("Mathias", "Buus", role = "cph"),
+    person("Evgeny", "Poberezkin", role = "cph"))
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
 Description: Uses the node library 'is-my-json-valid' to validate 'JSON' against
     a 'JSON' schema.
@@ -19,3 +20,4 @@ Suggests:
   testthat
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr
+Encoding: UTF-8
