@@ -1,0 +1,24 @@
+{
+    "name": "jsonvalidate",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "description": "Javascript support for jsonvalidate",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/ropensci/jsonvalidate.git"
+    },
+    "bugs": {
+        "url": "https://github.com/ropensci/jsonvalidate/issues"
+    },
+    "dependencies": {
+        "ajv": "^6.5.2",
+        "is-my-json-valid": "^2.17.2"
+    },
+    "homepage": "https://github.com/ropensci/jsonvalidate#readme"
+}

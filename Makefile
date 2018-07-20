@@ -34,5 +34,13 @@ staticdocs:
 website: staticdocs
 	./update_web.sh
 
+js/bundle.js: js/package.json
+	./js/prepare
+
+inst/bundle.js: js/bundle.js
+	cp $< $@
+	cp js/node_modules/ajv/LICENSE inst/LICENSE.ajv
+	cp js/node_modules/is-my-json-valid/LICENSE inst/LICENSE.is-my-json-valid
+
 # No real targets!
 .PHONY: all test document install vignettes

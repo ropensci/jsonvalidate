@@ -6,7 +6,7 @@
 ##' @export
 json_validator <- function(schema) {
   name <- basename(tempfile("jv_"))
-  env$ct$eval(sprintf("%s = validator(%s)", name, get_string(schema)))
+  env$ct$eval(sprintf("%s = imjv(%s)", name, get_string(schema)))
   ret <- function(json, verbose=FALSE, greedy=FALSE, error=FALSE) {
     if (error) {
       verbose <- TRUE
@@ -74,5 +74,5 @@ get_string <- function(x) {
 env <- new.env(parent=emptyenv())
 .onLoad <- function(libname, pkgname) {
   env$ct <- V8::v8()
-  env$ct$source(system.file("is-my-json-valid.js", package=.packageName))
+  env$ct$source(system.file("bundle.js", package="jsonvalidate"))
 }
