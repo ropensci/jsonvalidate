@@ -1,5 +1,6 @@
 context("validator")
 
+
 test_that("simple case works", {
   str <- "{
   required: true,
@@ -26,7 +27,7 @@ test_that("simple case works", {
   expect_true(v("{hello: 'world'}"))
 
   v <- json_validator("schema.json")
-  expect_error(v("{}", error=TRUE),
+  expect_error(v("{}", error = TRUE),
                "data.hello: is required")
-  expect_null(v("{hello: 'world'}", error=TRUE))
+  expect_null(v("{hello: 'world'}", error = TRUE))
 })
