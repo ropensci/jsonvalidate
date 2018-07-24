@@ -28,4 +28,3 @@ only for the side-effect of an error on failure, like
 Validate a single json against a schema.  This is a convenience
 wrapper around \code{json_validator(schema)(json)}
 }
-

@@ -34,7 +34,7 @@ staticdocs:
 website: staticdocs
 	./update_web.sh
 
-js/bundle.js: js/package.json
+js/bundle.js: js/package.json js/in.js
 	./js/prepare
 
 inst/bundle.js: js/bundle.js

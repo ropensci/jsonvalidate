@@ -4,13 +4,17 @@
 \alias{json_validator}
 \title{Create a json validator}
 \usage{
-json_validator(schema)
+json_validator(schema, engine = "imjv")
 }
 \arguments{
 \item{schema}{Contents of the json schema, or a filename
 containing a schema.}
+
+\item{engine}{Specify the validation engine to use.  Options are
+"imjv" (the default; which uses "is-my-json-valid") and "ajv"
+(Another JSON Schema Validator).  The latter supports more
+recent json schema features.}
 }
 \description{
 Create a validator that can validate multiple json files.
 }
-

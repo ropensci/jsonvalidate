@@ -1,10 +1,26 @@
 ##' Create a validator that can validate multiple json files.
 ##'
 ##' @title Create a json validator
+##'
 ##' @param schema Contents of the json schema, or a filename
 ##'   containing a schema.
+##'
+##'
+##' @param engine Specify the validation engine to use.  Options are
+##'   "imjv" (the default; which uses "is-my-json-valid") and "ajv"
+##'   (Another JSON Schema Validator).  The latter supports more
+##'   recent json schema features.
+##'
 ##' @export
-json_validator <- function(schema) {
+json_validator <- function(schema, engine = "imjv") {
+  switch(engine,
+         imjv = json_validator_imjv(schema),
+         ajv = json_validator_ajv(schema),
+         stop(sprintf("Unknown engine '%s'", engine)))
+}
+
+
+json_validator_imjv <- function(schema) {
   name <- basename(tempfile("jv_"))
   env$ct$eval(sprintf("%s = imjv(%s)", name, get_string(schema)))
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
@@ -38,15 +54,59 @@ json_validator <- function(schema) {
 }
 
 
+json_validator_ajv <- function(schema) {
+  name <- basename(tempfile("jv_"))
+  env$ct$eval(sprintf("%s = Ajv({true: false}).compile(%s)",
+                      name, get_string(schema)))
+
+  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
+    ## NOTE: with the ajv validator, because the "greedy" switch needs
+    ## to go into the schema compilation step it's not a great fit
+    ## here.  But the primary effect is that
+    if (error) {
+      verbose <- TRUE
+    }
+    res <- env$ct$call(name, V8::JS(get_string(json)))
+
+    if (verbose) {
+      errors <- env$ct$get(paste0(name, ".errors"))
+      if (error) {
+        if (is.null(errors)) {
+          return(NULL)
+        } else {
+          n <- nrow(errors)
+          msg <- sprintf("%s %s validating json:\n%s",
+                         n, ngettext(n, "error", "errors"),
+                         paste(sprintf("\t- %s", errors$message),
+                               collapse = "\n"))
+          stop(msg, call. = FALSE)
+        }
+      } else {
+        attr(res, "errors") <- errors
+      }
+    }
+    res
+  }
+  attr(ret, "name") <- name
+  ret
+}
+
+
 ##' Validate a single json against a schema.  This is a convenience
 ##' wrapper around \code{json_validator(schema)(json)}
+##'
 ##' @title Validate a json file
+##'
 ##' @inheritParams json_validator
+##'
 ##' @param json Contents of a json object, or a filename containing
 ##'   one.
+##'
 ##' @param verbose Be verbose?  If \code{TRUE}, then an attribute
 ##'   "errors" will list validation failures as a data.frame
+##'
 ##' @param greedy Continue after the first error?
+##'
 ##' @param error Throw an error on parse failure?  If \code{TRUE},
 ##'   then the function returns \code{NULL} on success (i.e., call
 ##'   only for the side-effect of an error on failure, like
