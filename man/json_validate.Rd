@@ -5,7 +5,7 @@
 \title{Validate a json file}
 \usage{
 json_validate(json, schema, verbose = FALSE, greedy = FALSE,
-  error = FALSE)
+  error = FALSE, engine = "imjv")
 }
 \arguments{
 \item{json}{Contents of a json object, or a filename containing
@@ -23,6 +23,11 @@ containing a schema.}
 then the function returns \code{NULL} on success (i.e., call
 only for the side-effect of an error on failure, like
 \code{stopifnot}).}
+
+\item{engine}{Specify the validation engine to use.  Options are
+"imjv" (the default; which uses "is-my-json-valid") and "ajv"
+(Another JSON Schema Validator).  The latter supports more
+recent json schema features.}
 }
 \description{
 Validate a single json against a schema.  This is a convenience
