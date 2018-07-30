@@ -56,8 +56,8 @@ json_validator_imjv <- function(schema) {
 
 json_validator_ajv <- function(schema) {
   name <- basename(tempfile("jv_"))
-  env$ct$eval(sprintf("%s = Ajv({true: false}).compile(%s)",
-                      name, get_string(schema)))
+  env$ct$eval(
+    sprintf("%s = AjvGenerator.compile(%s)", name, get_string(schema)))
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
     ## NOTE: with the ajv validator, because the "greedy" switch needs
@@ -113,8 +113,8 @@ json_validator_ajv <- function(schema) {
 ##'   \code{stopifnot}).
 ##' @export
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
-                          error = FALSE) {
-  tmp <- json_validator(schema)
+                          error = FALSE, engine = "imjv") {
+  tmp <- json_validator(schema, engine)
   on.exit(env$ct$eval(sprintf("delete %s", attr(tmp, "name"))))
   tmp(json, verbose, greedy, error)
 }
