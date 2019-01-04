@@ -1,5 +1,7 @@
 language: r
-sudo: required
+sudo: false
 dist: trusty
-apt_packages:
-    - libv8-dev
+addons:
+  apt:
+    packages:
+      - libv8-dev
