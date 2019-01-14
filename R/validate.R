@@ -77,9 +77,15 @@ json_validator_ajv <- function(schema) {
           n <- nrow(errors)
           msg <- sprintf("%s %s validating json:\n%s",
                          n, ngettext(n, "error", "errors"),
-                         paste(sprintf("\t- %s", errors$message),
+                         paste(sprintf("\t- %s (%s): %s",
+                                       errors$dataPath,
+                                       errors$schemaPath,
+                                       errors$message),
                                collapse = "\n"))
-          stop(msg, call. = FALSE)
+          ret <- structure(
+            list(message = msg, errors = errors),
+            class = c("validation_error", "error", "condition"))
+          stop(ret)
         }
       } else {
         attr(res, "errors") <- errors
