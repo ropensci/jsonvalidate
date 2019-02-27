@@ -27,9 +27,9 @@ consuming conforms to the schema.
 The examples below come from the [JSON schema
 website](http://json-schema.org/example1.html)
 
-They describe a a JSON based product catalog, where a product which
+They describe a JSON based product catalog, where each product
 has an id, a name, a price, and an optional set of tags.  A JSON
-represenation of a product is:
+representation of a product is:
 
 ```json
 {
@@ -121,7 +121,7 @@ Create a validator:
 v <- jsonvalidate::json_validator(schema)
 ```
 
-If we'd saved he json to a filename this would work too:
+If we'd saved the json to a file called `schema.json`, this would work too:
 ``` {r }
 writeLines(schema, "schema.json")
 v <- jsonvalidate::json_validator("schema.json")
