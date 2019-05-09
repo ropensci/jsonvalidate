@@ -59,7 +59,7 @@ test_that("simple case works", {
   expect_true(v("{hello: 'world'}"))
 
   v <- json_validator("schema2.json", "ajv")
-  expect_condition(v("{}", error = TRUE), "hello", class = "validation_error")
+  expect_error(v("{}", error = TRUE), "hello", class = "validation_error")
   expect_null(v("{hello: 'world'}", error = TRUE))
 })
 
