@@ -75,7 +75,7 @@ test_that("const keyword is supported in draft-06, not draft-04", {
   }"
 
   expect_true(json_validate("{'a': 'foo'}", schema, engine = "ajv"))
-  ## expect_true(json_validate("{'a': 'bar'}", schema, engine = "ajv"))
+  expect_true(json_validate("{'a': 'bar'}", schema, engine = "ajv"))
 
   ## Switch to draft-06
   schema <- gsub("draft-04", "draft-06", schema)
@@ -102,7 +102,7 @@ test_that("if/then/else keywords are supported in draft-07, not draft-04", {
   }"
 
   expect_true(json_validate("{'a': 5, 'b': 5}", schema, engine = "ajv"))
-  ## expect_true(json_validate("{'a': 0, 'b': 5}", schema, engine = "ajv"))
+  expect_true(json_validate("{'a': 0, 'b': 5}", schema, engine = "ajv"))
 
   ## Switch to draft-07
   schema <- gsub("draft-04", "draft-07", schema)
