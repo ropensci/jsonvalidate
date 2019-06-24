@@ -12,6 +12,7 @@
 ##'   recent json schema features.
 ##'
 ##' @export
+##' @example man-roxygen/example-json_validator.R
 json_validator <- function(schema, engine = "imjv") {
   switch(engine,
          imjv = json_validator_imjv(schema),
@@ -138,6 +139,7 @@ json_validator_ajv <- function(schema) {
 ##'   only for the side-effect of an error on failure, like
 ##'   \code{stopifnot}).
 ##' @export
+##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
                           error = FALSE, engine = "imjv") {
   tmp <- json_validator(schema, engine)

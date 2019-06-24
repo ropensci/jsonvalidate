@@ -11,3 +11,4 @@
 ^jsonvalidate_.*\.tar\.gz$
 ^js$
 ^CODE_OF_CONDUCT\.md$
+^man-roxygen$
