@@ -14,6 +14,7 @@
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
 json_validator <- function(schema, engine = "imjv") {
+  schema <- get_string(schema)
   switch(engine,
          imjv = json_validator_imjv(schema),
          ajv = json_validator_ajv(schema),
@@ -23,7 +24,7 @@ json_validator <- function(schema, engine = "imjv") {
 
 json_validator_imjv <- function(schema) {
   name <- basename(tempfile("jv_"))
-  env$ct$eval(sprintf("%s = imjv(%s)", name, get_string(schema)))
+  env$ct$eval(sprintf("%s = imjv(%s)", name, schema))
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
     if (error) {
       verbose <- TRUE
@@ -59,7 +60,7 @@ json_validator_ajv <- function(schema) {
   name <- basename(tempfile("jv_"))
 
   # determine meta-schema version
-  meta_schema <- env$ct$eval(sprintf("get_meta_schema(%s)", get_string(schema)))
+  meta_schema <- env$ct$eval(sprintf("get_meta_schema(%s)", schema))
   meta_schema_version <- get_meta_schema_version(meta_schema)
 
   # if not recognized, use "draft-07"
@@ -77,7 +78,7 @@ json_validator_ajv <- function(schema) {
 
   # call the generator to create the validator
   env$ct$eval(
-    sprintf("%s = %s.compile(%s)", name, ajv_name, get_string(schema))
+    sprintf("%s = %s.compile(%s)", name, ajv_name, schema)
   )
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
@@ -182,5 +183,3 @@ env <- new.env(parent = emptyenv())
   env$ct <- V8::v8()
   env$ct$source(system.file("bundle.js", package = "jsonvalidate"))
 }
-
-
