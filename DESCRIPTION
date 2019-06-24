@@ -1,23 +1,26 @@
 Package: jsonvalidate
 Title: Validate 'JSON'
-Version: 1.0.1
+Version: 1.1.0
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
     email = "rich.fitzjohn@gmail.com"),
+    person("Ian", "Lyttle", role = "ctb"),
+    person("Kara", "Woo", role = "ctb"),
     person("Mathias", "Buus", role = "cph"),
     person("Evgeny", "Poberezkin", role = "cph"))
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
-Description: Uses the node library 'is-my-json-valid' to validate 'JSON' against
-    a 'JSON' schema.
+Description: Uses the node library 'is-my-json-valid' or 'ajv' to
+    validate 'JSON' against a 'JSON' schema.  Drafts 04, 06 and 07 of
+    'JSON' schema are supported.
 License: MIT + file LICENSE
 LazyData: true
 URL: https://github.com/ropensci/jsonvalidate
 BugReports: https://github.com/ropensci/jsonvalidate/issues
 Imports:
-  V8
+    V8
 Suggests:
-  knitr,
-  rmarkdown,
-  testthat
+    knitr,
+    rmarkdown,
+    testthat
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
 Encoding: UTF-8
