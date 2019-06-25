@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ropensci/jsonvalidate.svg?branch=master)](https://travis-ci.org/ropensci/jsonvalidate)
 
-Validate JSON against a schema using [`is-my-json-valid`](https://github.com/mafintosh/is-my-json-valid).  This package is simply a thin wrapper around the node library, using the [V8](http://cran.r-project.org/package=V8) package to call `is-my-json-valid` from R.
+Validate JSON against a schema using [`is-my-json-valid`](https://github.com/mafintosh/is-my-json-valid).  This package is simply a thin wrapper around the node library, using the [V8](https://cran.r-project.org/package=V8) package to call `is-my-json-valid` from R.
 
 ## Installation
 
