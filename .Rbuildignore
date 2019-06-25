@@ -12,3 +12,5 @@
 ^js$
 ^CODE_OF_CONDUCT\.md$
 ^man-roxygen$
+^doc$
+^Meta$

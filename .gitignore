@@ -8,3 +8,5 @@ inst/web
 cran-comments.md
 js/node_modules
 js/bundle*js
+doc
+Meta
