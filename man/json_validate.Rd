@@ -5,7 +5,7 @@
 \title{Validate a json file}
 \usage{
 json_validate(json, schema, verbose = FALSE, greedy = FALSE,
-  error = FALSE)
+  error = FALSE, engine = "imjv")
 }
 \arguments{
 \item{json}{Contents of a json object, or a filename containing
@@ -23,9 +23,57 @@ containing a schema.}
 then the function returns \code{NULL} on success (i.e., call
 only for the side-effect of an error on failure, like
 \code{stopifnot}).}
+
+\item{engine}{Specify the validation engine to use.  Options are
+"imjv" (the default; which uses "is-my-json-valid") and "ajv"
+(Another JSON Schema Validator).  The latter supports more
+recent json schema features.}
 }
 \description{
 Validate a single json against a schema.  This is a convenience
 wrapper around \code{json_validator(schema)(json)}
 }
+\examples{
+# A simple schema example:
+schema <- '{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Product",
+    "description": "A product from Acme\\'s catalog",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "The unique identifier for a product",
+            "type": "integer"
+        },
+        "name": {
+            "description": "Name of the product",
+            "type": "string"
+        },
+        "price": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        }
+    },
+    "required": ["id", "name", "price"]
+}'
 
+# Test if some (invalid) json conforms to the schema
+jsonvalidate::json_validate("{}", schema, verbose = TRUE)
+
+# Test if some (valid) json conforms to the schema
+jsonvalidate::json_validate('{
+    "id": 1,
+    "name": "A green door",
+    "price": 12.50,
+    "tags": ["home", "green"]
+}', schema)
+}

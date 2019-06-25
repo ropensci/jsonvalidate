@@ -4,9 +4,11 @@
 ^README.Rmd$
 ^.travis.yml$
 ^appveyor.yml$
-^build\.sh$
 ^\.V8history$
 ^appveyor\.yml$
 ^update_web\.sh$
 ^cran-comments\.md$
 ^jsonvalidate_.*\.tar\.gz$
+^js$
+^CODE_OF_CONDUCT\.md$
+^man-roxygen$

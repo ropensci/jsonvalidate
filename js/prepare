@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+HERE=$(dirname $0)
+cd $HERE
+
+echo "Working in $(pwd)"
+
+rm -rf node_modules
+npm install
+browserify in.js > bundle.js
+uglifyjs bundle.js > bundle.min.js
