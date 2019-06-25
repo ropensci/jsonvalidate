@@ -25,7 +25,7 @@ for you, and you can just check that the JSON you are producing or
 consuming conforms to the schema.
 
 The examples below come from the [JSON schema
-website](http://json-schema.org/example1.html)
+website](http://json-schema.org/learn/getting-started-step-by-step.html)
 
 They describe a JSON based product catalog, where each product
 has an id, a name, a price, and an optional set of tags.  A JSON
