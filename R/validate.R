@@ -13,11 +13,15 @@
 ##'
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
-json_validator <- function(schema, engine = "imjv") {
+json_validator <- function(schema, engine = "imjv", reference = NULL) {
   schema <- get_string(schema)
+  if (!is.null(reference) && engine != 'ajv') {
+    # Should this instead use ajv and give a warning?
+    stop("reference option only permissible with engine 'ajv'")
+  }
   switch(engine,
          imjv = json_validator_imjv(schema),
-         ajv = json_validator_ajv(schema),
+         ajv = json_validator_ajv(schema, reference),
          stop(sprintf("Unknown engine '%s'", engine)))
 }
 
@@ -56,7 +60,7 @@ json_validator_imjv <- function(schema) {
 }
 
 
-json_validator_ajv <- function(schema) {
+json_validator_ajv <- function(schema, reference) {
   name <- basename(tempfile("jv_"))
 
   # determine meta-schema version
@@ -76,9 +80,17 @@ json_validator_ajv <- function(schema) {
     `draft-07` = "ajv",
   )
 
-  # call the generator to create the validator
+  #call the generator to create the validator
+  # env$ct$eval(
+  #  sprintf("%s = %s.compile(%s)", name, ajv_name, schema)
+  # )
+  
+  schema_name <- basename(tempfile("schema_"))
+  if (is.null(reference)) reference <- schema_name
+
   env$ct$eval(
-    sprintf("%s = %s.compile(%s)", name, ajv_name, schema)
+    sprintf("%s = %s.addSchema(%s,'%s').getSchema('%s')",
+            name, ajv_name, schema, schema_name, reference)
   )
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
@@ -142,8 +154,8 @@ json_validator_ajv <- function(schema) {
 ##' @export
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
-                          error = FALSE, engine = "imjv") {
-  tmp <- json_validator(schema, engine)
+                          error = FALSE, engine = "imjv", reference = NULL) {
+  tmp <- json_validator(schema, engine, reference = reference)
   on.exit(env$ct$eval(sprintf("delete %s", attr(tmp, "name"))))
   tmp(json, verbose, greedy, error)
 }
