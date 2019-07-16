@@ -86,15 +86,11 @@ json_validator_ajv <- function(schema, reference) {
     `draft-06` = "ajv",
     `draft-07` = "ajv",
   )
-
-  #call the generator to create the validator
-  # env$ct$eval(
-  #  sprintf("%s = %s.compile(%s)", name, ajv_name, schema)
-  # )
   
   schema_name <- basename(tempfile("schema_"))
   if (is.null(reference)) reference <- schema_name
 
+  #call the generator to create the validator
   env$ct$eval(
     sprintf("%s = %s.addSchema(%s,'%s').getSchema('%s')",
             name, ajv_name, schema, schema_name, reference)
