@@ -10,7 +10,14 @@
 ##'   "imjv" (the default; which uses "is-my-json-valid") and "ajv"
 ##'   (Another JSON Schema Validator).  The latter supports more
 ##'   recent json schema features.
-##'
+##'   
+##' @param reference Reference within schema to use for validating against a 
+##'   sub-schema instead of the full schema passed in. For example
+##'   if the schema has a 'definitions' list including a definition for a 
+##'   'Hello' object, one could pass "#/definitions/Hello" and the validator
+##'   would check that the json is a valid "Hello" object. Only available if 
+##'   \code{engine = 'ajv'}.
+##'   
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
 json_validator <- function(schema, engine = "imjv", reference = NULL) {
@@ -151,6 +158,14 @@ json_validator_ajv <- function(schema, reference) {
 ##'   then the function returns \code{NULL} on success (i.e., call
 ##'   only for the side-effect of an error on failure, like
 ##'   \code{stopifnot}).
+##'   
+##' @param reference Reference within schema to use for validating against a 
+##'   sub-schema instead of the full schema passed in. For example
+##'   if the schema has a 'definitions' list including a definition for a 
+##'   'Hello' object, one could pass "#/definitions/Hello" and the validator
+##'   would check that the json is a valid "Hello" object. Only available if 
+##'   \code{engine = 'ajv'}.
+##' 
 ##' @export
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
