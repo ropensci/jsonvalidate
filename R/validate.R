@@ -33,7 +33,7 @@ json_validator <- function(schema, engine = "imjv", reference = NULL) {
 
 
 json_validator_imjv <- function(schema, context) {
-  name <- basename(tempfile("jv_"))
+  name <- random_id()
   env$ct$eval(sprintf("%s = imjv(%s)", name, schema))
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
     if (error) {
@@ -67,7 +67,7 @@ json_validator_imjv <- function(schema, context) {
 
 
 json_validator_ajv <- function(schema, reference) {
-  name <- basename(tempfile("jv_"))
+  name <- random_id()
 
   ## determine meta-schema version
   meta_schema <- env$ct$eval(sprintf("get_meta_schema(%s)", schema))

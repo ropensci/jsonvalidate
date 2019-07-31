@@ -10,3 +10,11 @@ get_string <- function(x) {
   }
   x
 }
+
+
+## An alternative here would be to drag in ids which has a nice
+## random_id function.  This approach here is at least safe to seed
+## setting
+random_id <- function() {
+  basename(tempfile(""))
+}
