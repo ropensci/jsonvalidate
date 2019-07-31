@@ -23,7 +23,6 @@
 json_validator <- function(schema, engine = "imjv", reference = NULL) {
   schema <- get_string(schema)
   if (!is.null(reference) && engine != 'ajv') {
-    # Should this instead use ajv and give a warning?
     stop("reference option only permissible with engine 'ajv'")
   }
   switch(engine,
@@ -88,9 +87,11 @@ json_validator_ajv <- function(schema, reference) {
   )
   
   schema_name <- basename(tempfile("schema_"))
-  if (is.null(reference)) reference <- schema_name
+  if (is.null(reference)) {
+    reference <- schema_name
+  }
 
-  #call the generator to create the validator
+  # call the generator to create the validator
   env$ct$eval(
     sprintf("%s = %s.addSchema(%s,'%s').getSchema('%s')",
             name, ajv_name, schema, schema_name, reference)
