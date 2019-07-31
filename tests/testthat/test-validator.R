@@ -110,3 +110,40 @@ test_that("if/then/else keywords are supported in draft-07, not draft-04", {
   expect_true(json_validate("{'a': 5, 'b': 5}", schema, engine = "ajv"))
   expect_false(json_validate("{'a': 5, 'c': 5}", schema, engine = "ajv"))
 })
+
+test_that("subschema validation works", {
+ # Add test here...
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-06/schema#',
+    'definitions':  {
+      'Goodbye': {
+        type: 'object',
+        properties: {'goodbye': {type: 'string'}},
+        'required': ['goodbye']
+      },
+      'Hello': {
+        type: 'object',
+        properties: {'hello': {type: 'string'}},
+        'required': ['hello']
+      },
+      'Conversation': {
+        'anyOf': [
+          {'$ref': '#/definitions/Hello'},
+          {'$ref': '#/definitions/Goodbye'},
+        ]
+      }
+      },
+    '$ref': '#/definitions/Conversation'
+  }"
+  
+  val_goodbye <- json_validator(schema, "ajv", "#/definitions/Goodbye")
+  
+  expect_true(val_goodbye("{'goodbye': 'failure'}"))
+  expect_false(val_goodbye("{'hello': 'failure'}"))
+  
+  val_hello <- json_validator(schema, "ajv", "#/definitions/Hello")
+  
+  expect_false(val_hello("{'goodbye': 'failure'}"))
+  expect_true(val_hello("{'hello': 'failure'}"))
+  
+})

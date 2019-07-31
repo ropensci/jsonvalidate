@@ -1,8 +1,9 @@
 Package: jsonvalidate
 Title: Validate 'JSON'
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
     email = "rich.fitzjohn@gmail.com"),
+    person("Alicia", "Schep", role = "ctb"),
     person("Ian", "Lyttle", role = "ctb"),
     person("Kara", "Woo", role = "ctb"),
     person("Mathias", "Buus", role = "cph"),

@@ -10,14 +10,24 @@
 ##'   "imjv" (the default; which uses "is-my-json-valid") and "ajv"
 ##'   (Another JSON Schema Validator).  The latter supports more
 ##'   recent json schema features.
-##'
+##'   
+##' @param reference Reference within schema to use for validating against a 
+##'   sub-schema instead of the full schema passed in. For example
+##'   if the schema has a 'definitions' list including a definition for a 
+##'   'Hello' object, one could pass "#/definitions/Hello" and the validator
+##'   would check that the json is a valid "Hello" object. Only available if 
+##'   \code{engine = 'ajv'}.
+##'   
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
-json_validator <- function(schema, engine = "imjv") {
+json_validator <- function(schema, engine = "imjv", reference = NULL) {
   schema <- get_string(schema)
+  if (!is.null(reference) && engine != 'ajv') {
+    stop("reference option only permissible with engine 'ajv'")
+  }
   switch(engine,
          imjv = json_validator_imjv(schema),
-         ajv = json_validator_ajv(schema),
+         ajv = json_validator_ajv(schema, reference),
          stop(sprintf("Unknown engine '%s'", engine)))
 }
 
@@ -56,7 +66,7 @@ json_validator_imjv <- function(schema) {
 }
 
 
-json_validator_ajv <- function(schema) {
+json_validator_ajv <- function(schema, reference) {
   name <- basename(tempfile("jv_"))
 
   # determine meta-schema version
@@ -75,10 +85,16 @@ json_validator_ajv <- function(schema) {
     `draft-06` = "ajv",
     `draft-07` = "ajv",
   )
+  
+  schema_name <- basename(tempfile("schema_"))
+  if (is.null(reference)) {
+    reference <- schema_name
+  }
 
   # call the generator to create the validator
   env$ct$eval(
-    sprintf("%s = %s.compile(%s)", name, ajv_name, schema)
+    sprintf("%s = %s.addSchema(%s,'%s').getSchema('%s')",
+            name, ajv_name, schema, schema_name, reference)
   )
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
@@ -139,11 +155,19 @@ json_validator_ajv <- function(schema) {
 ##'   then the function returns \code{NULL} on success (i.e., call
 ##'   only for the side-effect of an error on failure, like
 ##'   \code{stopifnot}).
+##'   
+##' @param reference Reference within schema to use for validating against a 
+##'   sub-schema instead of the full schema passed in. For example
+##'   if the schema has a 'definitions' list including a definition for a 
+##'   'Hello' object, one could pass "#/definitions/Hello" and the validator
+##'   would check that the json is a valid "Hello" object. Only available if 
+##'   \code{engine = 'ajv'}.
+##' 
 ##' @export
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
-                          error = FALSE, engine = "imjv") {
-  tmp <- json_validator(schema, engine)
+                          error = FALSE, engine = "imjv", reference = NULL) {
+  tmp <- json_validator(schema, engine, reference = reference)
   on.exit(env$ct$eval(sprintf("delete %s", attr(tmp, "name"))))
   tmp(json, verbose, greedy, error)
 }

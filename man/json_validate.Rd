@@ -5,7 +5,7 @@
 \title{Validate a json file}
 \usage{
 json_validate(json, schema, verbose = FALSE, greedy = FALSE,
-  error = FALSE, engine = "imjv")
+  error = FALSE, engine = "imjv", reference = NULL)
 }
 \arguments{
 \item{json}{Contents of a json object, or a filename containing
@@ -28,6 +28,13 @@ only for the side-effect of an error on failure, like
 "imjv" (the default; which uses "is-my-json-valid") and "ajv"
 (Another JSON Schema Validator).  The latter supports more
 recent json schema features.}
+
+\item{reference}{Reference within schema to use for validating against a 
+sub-schema instead of the full schema passed in. For example
+if the schema has a 'definitions' list including a definition for a 
+'Hello' object, one could pass "#/definitions/Hello" and the validator
+would check that the json is a valid "Hello" object. Only available if 
+\code{engine = 'ajv'}.}
 }
 \description{
 Validate a single json against a schema.  This is a convenience
