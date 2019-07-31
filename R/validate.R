@@ -21,118 +21,15 @@
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
 json_validator <- function(schema, engine = "imjv", reference = NULL) {
-  schema <- get_string(schema)
   if (!is.null(reference) && engine != 'ajv') {
     stop("reference option only permissible with engine 'ajv'")
   }
+  schema <- read_schema(schema)
+  v8 <- env$ct
   switch(engine,
-         imjv = json_validator_imjv(schema),
-         ajv = json_validator_ajv(schema, reference),
+         imjv = json_validator_imjv(schema, v8),
+         ajv = json_validator_ajv(schema, v8, reference),
          stop(sprintf("Unknown engine '%s'", engine)))
-}
-
-
-json_validator_imjv <- function(schema, context) {
-  name <- random_id()
-  env$ct$eval(sprintf("%s = imjv(%s)", name, schema))
-  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
-    if (error) {
-      verbose <- TRUE
-    }
-    res <- env$ct$call(name, V8::JS(get_string(json)),
-                       list(verbose = verbose),
-                       list(greedy = greedy))
-    if (verbose) {
-      errors <- env$ct$get(paste0(name, ".errors"))
-      if (error) {
-        if (is.null(errors)) {
-          return(NULL)
-        } else {
-          n <- nrow(errors)
-          msg <- sprintf("%s %s validating json:\n%s",
-                         n, ngettext(n, "error", "errors"),
-                         paste(sprintf("\t- %s: %s", errors[[1]], errors[[2]]),
-                               collapse = "\n"))
-          stop(msg, call. = FALSE)
-        }
-      } else {
-        attr(res, "errors") <- errors
-      }
-    }
-    res
-  }
-  attr(ret, "name") <- name
-  ret
-}
-
-
-json_validator_ajv <- function(schema, reference) {
-  name <- random_id()
-
-  ## determine meta-schema version
-  meta_schema <- env$ct$eval(sprintf("get_meta_schema(%s)", schema))
-  meta_schema_version <- get_meta_schema_version(meta_schema)
-
-  ## if not recognized, use "draft-07"
-  if (is.null(meta_schema_version)) {
-    meta_schema_version <- "draft-07"
-  }
-
-  ## determine the name of the generator-function to call
-  ajv_name <- switch(
-    meta_schema_version,
-    `draft-04` = "ajv_04",
-    `draft-06` = "ajv",
-    `draft-07` = "ajv",
-  )
-  
-  schema_name <- basename(tempfile("schema_"))
-  if (is.null(reference)) {
-    reference <- schema_name
-  }
-
-  ## call the generator to create the validator
-  env$ct$eval(
-    sprintf("%s = %s.addSchema(%s,'%s').getSchema('%s')",
-            name, ajv_name, schema, schema_name, reference)
-  )
-
-  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
-    ## NOTE: with the ajv validator, because the "greedy" switch needs
-    ## to go into the schema compilation step it's not a great fit
-    ## here.  But the primary effect is that
-    if (error) {
-      verbose <- TRUE
-    }
-    res <- env$ct$call(name, V8::JS(get_string(json)))
-
-    if (verbose) {
-      errors <- env$ct$get(paste0(name, ".errors"))
-      if (error) {
-        if (is.null(errors)) {
-          return(NULL)
-        } else {
-          n <- nrow(errors)
-          msg <- sprintf("%s %s validating json:\n%s",
-                         n, ngettext(n, "error", "errors"),
-                         paste(sprintf("\t- %s (%s): %s",
-                                       errors$dataPath,
-                                       errors$schemaPath,
-                                       errors$message),
-                               collapse = "\n"))
-          ret <- structure(
-            list(message = msg, errors = errors),
-            class = c("validation_error", "error", "condition"))
-          stop(ret)
-        }
-      } else {
-        attr(res, "errors") <- errors
-      }
-    }
-    res
-  }
-  attr(ret, "name") <- name
-  ret
 }
 
 
@@ -168,9 +65,53 @@ json_validator_ajv <- function(schema, reference) {
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
                           error = FALSE, engine = "imjv", reference = NULL) {
   tmp <- json_validator(schema, engine, reference = reference)
-  on.exit(env$ct$eval(sprintf("delete %s", attr(tmp, "name"))))
   tmp(json, verbose, greedy, error)
 }
+
+
+json_validator_imjv <- function(schema, v8) {
+  name <- random_id()
+  meta_schema_version <- schema$meta_schema_version %||% "draft-04"
+
+  v8$call("imjv_create", name, meta_schema_version, V8::JS(schema$schema))
+
+  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
+    if (error) {
+      verbose <- TRUE
+    }
+    res <- v8$call("imjv_call", name, V8::JS(get_string(json)),
+                   verbose, greedy)
+    validation_result(res, error, verbose)
+  }
+
+  reg.finalizer(environment(ret), cleanup("imjv", name, v8))
+
+  ret
+}
+
+
+json_validator_ajv <- function(schema, v8, reference) {
+  name <- random_id()
+  meta_schema_version <- schema$meta_schema_version %||% "draft-07"
+
+  if (is.null(reference)) {
+    reference <- V8::JS("null")
+  }
+
+  v8$call("ajv_create", name, meta_schema_version, V8::JS(schema$schema),
+          reference)
+
+  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
+    res <- v8$call("ajv_call", name, V8::JS(get_string(json)),
+                   error || verbose)
+    validation_result(res, error, verbose)
+  }
+
+  reg.finalizer(environment(ret), cleanup("imjv", name, v8))
+
+  ret
+}
+
 
 
 ## internal function to determine version given a string
@@ -184,4 +125,53 @@ get_meta_schema_version <- function(x) {
   }
 
   version
+}
+
+
+cleanup <- function(type, name, v8) {
+  force(type)
+  force(name)
+  force(v8)
+  function(e) {
+    v8$call("cleanup", type, name)
+  }
+}
+
+
+validation_result <- function(res, error, verbose) {
+  success <- res$success
+
+  if (!success) {
+    if (error) {
+      stop(validation_error(res))
+    }
+    if (verbose) {
+      attr(success, "errors") <- res$errors
+    }
+  }
+
+  success
+}
+
+
+validation_error <- function(res) {
+  errors <- res$errors
+  n <- nrow(errors)
+  if (res$engine == "ajv") {
+    detail <- paste(sprintf("\t- %s (%s): %s",
+                            errors$dataPath,
+                            errors$schemaPath,
+                            errors$message),
+                    collapse = "\n")
+  } else {
+    detail <- paste(sprintf("\t- %s: %s",
+                            errors[[1]],
+                            errors[[2]]),
+                    collapse = "\n")
+  }
+  msg <- sprintf("%s %s validating json:\n%s",
+                 n, ngettext(n, "error", "errors"), detail)
+  structure(
+    list(message = msg, errors = errors),
+    class = c("validation_error", "error", "condition"))
 }

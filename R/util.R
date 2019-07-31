@@ -18,3 +18,8 @@ get_string <- function(x) {
 random_id <- function() {
   basename(tempfile(""))
 }
+
+
+`%||%` <- function(a, b) {
+  if (is.null(a)) b else a
+}

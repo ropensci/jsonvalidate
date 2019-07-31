@@ -1,6 +1,7 @@
 ## jsonvalidate 1.?.?
 
 * JSON can be validated against a subschema (#18, #19, @AliciaSchep)
+* Validation with `error = TRUE` now returns `TRUE` (not `NULL)` on success
 
 ## jsonvalidate 1.1.0
 
