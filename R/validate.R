@@ -32,7 +32,7 @@ json_validator <- function(schema, engine = "imjv", reference = NULL) {
 }
 
 
-json_validator_imjv <- function(schema) {
+json_validator_imjv <- function(schema, context) {
   name <- basename(tempfile("jv_"))
   env$ct$eval(sprintf("%s = imjv(%s)", name, schema))
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
@@ -173,19 +173,6 @@ json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
 }
 
 
-get_string <- function(x) {
-  if (length(x) == 0L) {
-    stop("zero length input")
-  } else if (!is.character(x)) {
-    stop("Expected a character vector")
-  } else if (length(x) > 1L) {
-    x <- paste(x, collapse = "\n")
-  } else if (file.exists(x) && !inherits(x, "AsIs")) {
-    x <- paste(readLines(x), collapse = "\n")
-  }
-  x
-}
-
 # internal function to determine version given a string
 get_meta_schema_version <- function(x) {
 
@@ -198,12 +185,4 @@ get_meta_schema_version <- function(x) {
   }
 
   version
-}
-
-env <- new.env(parent = emptyenv())
-
-
-.onLoad <- function(libname, pkgname) {
-  env$ct <- V8::v8()
-  env$ct$source(system.file("bundle.js", package = "jsonvalidate"))
 }
