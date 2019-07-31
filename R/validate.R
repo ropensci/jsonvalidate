@@ -69,16 +69,16 @@ json_validator_imjv <- function(schema, context) {
 json_validator_ajv <- function(schema, reference) {
   name <- basename(tempfile("jv_"))
 
-  # determine meta-schema version
+  ## determine meta-schema version
   meta_schema <- env$ct$eval(sprintf("get_meta_schema(%s)", schema))
   meta_schema_version <- get_meta_schema_version(meta_schema)
 
-  # if not recognized, use "draft-07"
+  ## if not recognized, use "draft-07"
   if (is.null(meta_schema_version)) {
     meta_schema_version <- "draft-07"
   }
 
-  # determine the name of the generator-function to call
+  ## determine the name of the generator-function to call
   ajv_name <- switch(
     meta_schema_version,
     `draft-04` = "ajv_04",
@@ -91,7 +91,7 @@ json_validator_ajv <- function(schema, reference) {
     reference <- schema_name
   }
 
-  # call the generator to create the validator
+  ## call the generator to create the validator
   env$ct$eval(
     sprintf("%s = %s.addSchema(%s,'%s').getSchema('%s')",
             name, ajv_name, schema, schema_name, reference)
@@ -173,9 +173,8 @@ json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
 }
 
 
-# internal function to determine version given a string
+## internal function to determine version given a string
 get_meta_schema_version <- function(x) {
-
   regex <- "^http://json-schema.org/(draft-\\d{2})/schema#$"
   version <- gsub(regex, "\\1", x)
 
