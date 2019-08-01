@@ -1,27 +1,45 @@
 # jsonvalidate
 
+<!-- badges: start -->
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Build Status](https://travis-ci.org/ropensci/jsonvalidate.svg?branch=master)](https://travis-ci.org/ropensci/jsonvalidate)
+[![codecov.io](https://codecov.io/github/ropensci/jsonvalidate/coverage.svg?branch=master)](https://codecov.io/github/ropensci/jsonvalidate?branch=master)
+[![](http://www.r-pkg.org/badges/version/jsonvalidate)](https://cran.r-project.org/package=jsonvalidate)
+<!-- badges: end -->
 
-Validate JSON against a schema using [`is-my-json-valid`](https://github.com/mafintosh/is-my-json-valid) or [`ajv`](https://github.com/epoberezkin/ajv).  This package is simply a thin wrapper around these node libraries, using the [V8](https://cran.r-project.org/package=V8) package.
 
-## Installation
-
-```r
-devtools::install_github("ropensci/jsonvalidate")
-```
+Validate JSON against a schema using [`is-my-json-valid`](https://github.com/mafintosh/is-my-json-valid) or [`ajv`](https://github.com/epoberezkin/ajv).  This package is a thin wrapper around these node libraries, using the [V8](https://cran.r-project.org/package=V8) package.
 
 ## Usage
 
+Directly validate `json` against `schema`
+
 ```r
-jsonvalidate::validate_json(json, schema)
+jsonvalidate::json_validate(json, schema)
 ```
 
-or
+or create a validator for multiple uses
 
 ```r
-validate <- jsonvalidate::validate_json(schema)
+validate <- jsonvalidate::json_validator(schema)
 validate(json)
 validate(json2) # etc
+```
+
+See the [package vignette](https://docs.ropensci.org/jsonvalidate/articles/jsonvalidate.html) for complete examples.
+
+## Installation
+
+Install from CRAN with
+
+```r
+install.packages("jsonvalidate")
+```
+
+Alternatively, the current development version can be installed from GitHub with
+
+```r
+devtools::install_github("ropensci/jsonvalidate")
 ```
 
 ## License

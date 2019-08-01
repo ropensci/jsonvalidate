@@ -30,8 +30,9 @@ test_that("is-my-json-valid", {
 
   v <- json_validator("schema.json")
   expect_error(v("{}", error = TRUE),
-               "data.hello: is required")
-  expect_null(v("{hello: 'world'}", error = TRUE))
+               "data.hello: is required",
+               class = "validation_error")
+  expect_true(v("{hello: 'world'}", error = TRUE))
 })
 
 
@@ -60,8 +61,26 @@ test_that("simple case works", {
 
   v <- json_validator("schema2.json", "ajv")
   expect_error(v("{}", error = TRUE), "hello", class = "validation_error")
-  expect_null(v("{hello: 'world'}", error = TRUE))
+  expect_true(v("{hello: 'world'}", error = TRUE))
 })
+
+
+test_that("verbose output", {
+  schema <- str <- '{
+  "type": "object",
+  required: ["hello"],
+  "properties": {
+    "hello": {
+      "type": "string"
+    }
+  }
+}'
+  v <- json_validator(str, "ajv")
+  res <- v("{}", verbose = TRUE)
+  expect_false(res)
+  expect_is(attr(res, "errors"), "data.frame")
+})
+
 
 test_that("const keyword is supported in draft-06, not draft-04", {
   schema <- "{
@@ -111,30 +130,30 @@ test_that("if/then/else keywords are supported in draft-07, not draft-04", {
   expect_false(json_validate("{'a': 5, 'c': 5}", schema, engine = "ajv"))
 })
 
+
 test_that("subschema validation works", {
- # Add test here...
-  schema <- "{
-    '$schema': 'http://json-schema.org/draft-06/schema#',
-    'definitions':  {
-      'Goodbye': {
-        type: 'object',
-        properties: {'goodbye': {type: 'string'}},
-        'required': ['goodbye']
+  schema <- '{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions":  {
+      "Goodbye": {
+        type: "object",
+        properties: {"goodbye": {type: "string"}},
+        "required": ["goodbye"]
       },
-      'Hello': {
-        type: 'object',
-        properties: {'hello': {type: 'string'}},
-        'required': ['hello']
+      "Hello": {
+        type: "object",
+        properties: {"hello": {type: "string"}},
+        "required": ["hello"]
       },
-      'Conversation': {
-        'anyOf': [
-          {'$ref': '#/definitions/Hello'},
-          {'$ref': '#/definitions/Goodbye'},
+      "Conversation": {
+        "anyOf": [
+          {"$ref": "#/definitions/Hello"},
+          {"$ref": "#/definitions/Goodbye"},
         ]
       }
       },
-    '$ref': '#/definitions/Conversation'
-  }"
+    "$ref": "#/definitions/Conversation"
+  }'
   
   val_goodbye <- json_validator(schema, "ajv", "#/definitions/Goodbye")
   
@@ -145,5 +164,28 @@ test_that("subschema validation works", {
   
   expect_false(val_hello("{'goodbye': 'failure'}"))
   expect_true(val_hello("{'hello': 'failure'}"))
-  
+})
+
+
+test_that("can't use subschema reference with imjv", {
+  expect_error(json_validator("{}", engine = "imjv",
+                              reference = "definitions/sub"),
+               "subschema validation only supported with engine 'ajv'")
+})
+
+
+test_that("can't use invalid engines", {
+  expect_error(json_validator("{}", engine = "magic"),
+               "Unknown engine 'magic'")
+})
+
+
+test_that("package support", {
+  res <- prepare_js()
+  expect_is(res, "V8")
+  expect_setequal(names(res$get("validators")),
+                  c("imjv", "ajv"))
+  s <- res$call("validator_stats")
+  expect_equal(s$imjv, 0)
+  expect_equal(s$ajv, 0)
 })

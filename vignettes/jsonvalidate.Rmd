@@ -9,8 +9,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-``` {r echo=FALSE, results="hide"}
-knitr::opts_chunk$set(error=FALSE)
+``` {r echo = FALSE, results = "hide"}
+knitr::opts_chunk$set(error = FALSE)
 ```
 
 This package wraps
@@ -121,10 +121,15 @@ Create a validator:
 v <- jsonvalidate::json_validator(schema)
 ```
 
-If we'd saved the json to a file called `schema.json`, this would work too:
+If we'd saved the json to a file, this would work too:
 ``` {r }
-writeLines(schema, "schema.json")
-v <- jsonvalidate::json_validator("schema.json")
+path <- tempfile()
+writeLines(schema, path)
+v <- jsonvalidate::json_validator(path)
+```
+
+``` {r include = FALSE}
+file.remove(path)
 ```
 
 The returned object is a function that takes as its first argument
@@ -134,9 +139,9 @@ fail validation because it does not contain any of the required fields:
 v("{}")
 ```
 
-To get more information on why the validation fails, add `verbose=TRUE`:
+To get more information on why the validation fails, add `verbose = TRUE`:
 ``` {r }
-v("{}", verbose=TRUE)
+v("{}", verbose = TRUE)
 ```
 
 The attribute "errors" is a data.frame and is present only when the
@@ -144,14 +149,14 @@ json fails validation.  The error messages come straight from
 `is-my-json-valid` and they may not always be that informative.
 
 Alternatively, to throw an error if the json does not validate, add
-`error=TRUE` to the call:
-``` {r error=TRUE}
-v("{}", error=TRUE)
+`error = TRUE` to the call:
+``` {r error = TRUE}
+v("{}", error = TRUE)
 ```
 
-And to continue validating after the first error, pass `greedy=TRUE`:
+And to continue validating after the first error, pass `greedy = TRUE`:
 ``` {r }
-v("{}", verbose=TRUE, greedy=TRUE)
+v("{}", verbose = TRUE, greedy = TRUE)
 ```
 
 which will sometimes show more errors.
@@ -173,7 +178,7 @@ v('{
     "name": "A green door",
     "price": -1,
     "tags": ["home", "green"]
-}', verbose=TRUE)
+}', verbose = TRUE)
 ```
 
 ...or duplicate tags:
@@ -183,7 +188,7 @@ v('{
     "name": "A green door",
     "price": 12.50,
     "tags": ["home", "home"]
-}', verbose=TRUE)
+}', verbose = TRUE)
 ```
 
 or just basically everything wrong:
@@ -193,7 +198,7 @@ v('{
     "name": 1,
     "price": -1,
     "tags": ["home", "home", 1]
-}', verbose=TRUE)
+}', verbose = TRUE)
 ```
 
 The `data.tags.2` name comes from within the `is-my-json-valid`
@@ -209,8 +214,4 @@ json <- '{
     "tags": ["home", "green"]
 }'
 jsonvalidate::json_validate(json, schema)
-```
-
-``` {r echo=FALSE, results="hide"}
-file.remove("schema.json")
 ```
