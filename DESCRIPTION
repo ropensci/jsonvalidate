@@ -14,7 +14,8 @@ Description: Uses the node library 'is-my-json-valid' or 'ajv' to
     'JSON' schema are supported.
 License: MIT + file LICENSE
 LazyData: true
-URL: https://github.com/ropensci/jsonvalidate
+URL: https://docs.ropensci.org/jsonvalidate,
+    https://github.com/ropensci/jsonvalidate
 BugReports: https://github.com/ropensci/jsonvalidate/issues
 Imports:
     V8
