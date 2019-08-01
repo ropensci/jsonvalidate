@@ -8,26 +8,38 @@
 <!-- badges: end -->
 
 
-Validate JSON against a schema using [`is-my-json-valid`](https://github.com/mafintosh/is-my-json-valid) or [`ajv`](https://github.com/epoberezkin/ajv).  This package is simply a thin wrapper around these node libraries, using the [V8](https://cran.r-project.org/package=V8) package.
-
-## Installation
-
-```r
-devtools::install_github("ropensci/jsonvalidate")
-```
+Validate JSON against a schema using [`is-my-json-valid`](https://github.com/mafintosh/is-my-json-valid) or [`ajv`](https://github.com/epoberezkin/ajv).  This package is a thin wrapper around these node libraries, using the [V8](https://cran.r-project.org/package=V8) package.
 
 ## Usage
 
+Directly validate `json` against `schema`
+
 ```r
-jsonvalidate::validate_json(json, schema)
+jsonvalidate::json_validate(json, schema)
 ```
 
-or
+or create a validator for multiple uses
 
 ```r
-validate <- jsonvalidate::validate_json(schema)
+validate <- jsonvalidate::json_validator(schema)
 validate(json)
 validate(json2) # etc
+```
+
+See the [package vignette](https://docs.ropensci.org/jsonvalidate/articles/jsonvalidate.html) for complete examples.
+
+## Installation
+
+Install from CRAN with
+
+```r
+install.packages("jsonvalidate")
+```
+
+Alternatively, the current development version can be installed from GitHub with
+
+```r
+devtools::install_github("ropensci/jsonvalidate")
 ```
 
 ## License
