@@ -5,7 +5,6 @@
 ##' @param schema Contents of the json schema, or a filename
 ##'   containing a schema.
 ##'
-##'
 ##' @param engine Specify the validation engine to use.  Options are
 ##'   "imjv" (the default; which uses "is-my-json-valid") and "ajv"
 ##'   (Another JSON Schema Validator).  The latter supports more
@@ -24,8 +23,8 @@ json_validator <- function(schema, engine = "imjv", reference = NULL) {
   if (!is.null(reference) && engine != 'ajv') {
     stop("reference option only permissible with engine 'ajv'")
   }
-  schema <- read_schema(schema)
   v8 <- env$ct
+  schema <- read_schema(schema, v8)
   switch(engine,
          imjv = json_validator_imjv(schema, v8),
          ajv = json_validator_ajv(schema, v8, reference),
@@ -53,13 +52,6 @@ json_validator <- function(schema, engine = "imjv", reference = NULL) {
 ##'   only for the side-effect of an error on failure, like
 ##'   \code{stopifnot}).
 ##'   
-##' @param reference Reference within schema to use for validating against a 
-##'   sub-schema instead of the full schema passed in. For example
-##'   if the schema has a 'definitions' list including a definition for a 
-##'   'Hello' object, one could pass "#/definitions/Hello" and the validator
-##'   would check that the json is a valid "Hello" object. Only available if 
-##'   \code{engine = 'ajv'}.
-##' 
 ##' @export
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
@@ -84,7 +76,7 @@ json_validator_imjv <- function(schema, v8) {
     validation_result(res, error, verbose)
   }
 
-  reg.finalizer(environment(ret), cleanup("imjv", name, v8))
+  reg.finalizer(environment(ret), validator_delete("imjv", name, v8))
 
   ret
 }
@@ -107,33 +99,18 @@ json_validator_ajv <- function(schema, v8, reference) {
     validation_result(res, error, verbose)
   }
 
-  reg.finalizer(environment(ret), cleanup("imjv", name, v8))
+  reg.finalizer(environment(ret), validator_delete("imjv", name, v8))
 
   ret
 }
 
 
-
-## internal function to determine version given a string
-get_meta_schema_version <- function(x) {
-  regex <- "^http://json-schema.org/(draft-\\d{2})/schema#$"
-  version <- gsub(regex, "\\1", x)
-
-  versions_legal <- c("draft-04", "draft-06", "draft-07")
-  if (!version %in% versions_legal) {
-    return(NULL)
-  }
-
-  version
-}
-
-
-cleanup <- function(type, name, v8) {
+validator_delete <- function(type, name, v8) {
   force(type)
   force(name)
   force(v8)
   function(e) {
-    v8$call("cleanup", type, name)
+    v8$call("validator_delete", type, name)
   }
 }
 

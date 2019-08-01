@@ -65,7 +65,7 @@ global.imjv_call = function(key, value, errors, greedy) {
     return {"success": success, "errors": errors, "engine": "imjv"};
 }
 
-global.cleanup = function(type, name) {
+global.validator_delete = function(type, name) {
     delete validators[type][name];
 }
 
