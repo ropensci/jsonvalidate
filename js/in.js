@@ -70,5 +70,10 @@ global.validator_delete = function(type, name) {
 }
 
 global.get_meta_schema_version = function(schema) {
-  return schema.$schema;
+    return schema.$schema;
 };
+
+global.validator_stats = function() {
+    return {"imjv": Object.keys(validators["imjv"]).length,
+            "ajv": Object.keys(validators["ajv"]).length};
+}

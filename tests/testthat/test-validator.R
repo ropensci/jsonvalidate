@@ -178,3 +178,14 @@ test_that("can't use invalid engines", {
   expect_error(json_validator("{}", engine = "magic"),
                "Unknown engine 'magic'")
 })
+
+
+test_that("package support", {
+  res <- prepare_js()
+  expect_is(res, "V8")
+  expect_setequal(names(res$get("validators")),
+                  c("imjv", "ajv"))
+  s <- res$call("validator_stats")
+  expect_equal(s$imjv, 0)
+  expect_equal(s$ajv, 0)
+})

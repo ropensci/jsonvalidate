@@ -72,8 +72,13 @@ global.validator_delete = function(type, name) {
 }
 
 global.get_meta_schema_version = function(schema) {
-  return schema.$schema;
+    return schema.$schema;
 };
+
+global.validator_stats = function() {
+    return {"imjv": Object.keys(validators["imjv"]).length,
+            "ajv": Object.keys(validators["ajv"]).length};
+}
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"ajv":2,"ajv/lib/refs/json-schema-draft-04.json":42,"ajv/lib/refs/json-schema-draft-06.json":43,"is-my-json-valid":51}],2:[function(require,module,exports){

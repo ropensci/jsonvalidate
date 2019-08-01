@@ -8,6 +8,8 @@ prepare_js <- function() {
 }
 
 
+## This can't be reliably tested - it's called during package startup
+## and outside of covr's measurements.
 .onLoad <- function(libname, pkgname) {
-  env$ct <- prepare_js()
+  env$ct <- prepare_js() # nocov
 }
