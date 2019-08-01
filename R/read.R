@@ -1,5 +1,5 @@
 read_schema <- function(x, v8) {
-  schema <- get_string(x)
+  schema <- get_string(x, "schema")
   meta_schema_version <- read_meta_schema_version(schema, v8)
 
   list(schema = schema, meta_schema_version = meta_schema_version)

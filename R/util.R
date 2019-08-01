@@ -1,13 +1,20 @@
-get_string <- function(x) {
+get_string <- function(x, what = deparse(substitute(x))) {
   if (length(x) == 0L) {
-    stop("zero length input")
-  } else if (!is.character(x)) {
-    stop("Expected a character vector")
+    stop(sprintf("zero length input for %s", what))
+  }
+  if (!is.character(x)) {
+    stop(sprintf("Expected a character vector for %s", what))
+  }
+
+  ## TODO: this will get looked at in the next PR as we need to force
+  ## filenames better; it's not possible with this approach to error
+  ## if a file is missed through a typo.
+  if (length(x) == 1 && file.exists(x)) {
+    x <- paste(readLines(x), collapse = "\n")
   } else if (length(x) > 1L) {
     x <- paste(x, collapse = "\n")
-  } else if (file.exists(x) && !inherits(x, "AsIs")) {
-    x <- paste(readLines(x), collapse = "\n")
   }
+
   x
 }
 
