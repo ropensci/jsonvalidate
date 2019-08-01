@@ -64,6 +64,24 @@ test_that("simple case works", {
   expect_true(v("{hello: 'world'}", error = TRUE))
 })
 
+
+test_that("verbose output", {
+  schema <- str <- '{
+  "type": "object",
+  required: ["hello"],
+  "properties": {
+    "hello": {
+      "type": "string"
+    }
+  }
+}'
+  v <- json_validator(str, "ajv")
+  res <- v("{}", verbose = TRUE)
+  expect_false(res)
+  expect_is(attr(res, "errors"), "data.frame")
+})
+
+
 test_that("const keyword is supported in draft-06, not draft-04", {
   schema <- "{
     '$schema': 'http://json-schema.org/draft-04/schema#',
@@ -146,4 +164,17 @@ test_that("subschema validation works", {
   
   expect_false(val_hello("{'goodbye': 'failure'}"))
   expect_true(val_hello("{'hello': 'failure'}"))
+})
+
+
+test_that("can't use subschema reference with imjv", {
+  expect_error(json_validator("{}", engine = "imjv",
+                              reference = "definitions/sub"),
+               "subschema validation only supported with engine 'ajv'")
+})
+
+
+test_that("can't use invalid engines", {
+  expect_error(json_validator("{}", engine = "magic"),
+               "Unknown engine 'magic'")
 })

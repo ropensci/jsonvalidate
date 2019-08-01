@@ -21,7 +21,7 @@
 ##' @example man-roxygen/example-json_validator.R
 json_validator <- function(schema, engine = "imjv", reference = NULL) {
   if (!is.null(reference) && engine != 'ajv') {
-    stop("reference option only permissible with engine 'ajv'")
+    stop("subschema validation only supported with engine 'ajv'")
   }
   v8 <- env$ct
   schema <- read_schema(schema, v8)
