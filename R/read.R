@@ -68,8 +68,15 @@ read_schema_dependencies <- function(schema, children, parent, v8) {
   extra <- setdiff(find_schema_dependencies(schema, v8),
                    names(children))
 
+  ## Remove relative references
+  extra <- grep("^#", extra, invert = TRUE, value = TRUE)
+
   if (length(extra) == 0L) {
     return(NULL)
+  }
+
+  if (any(grepl("://", extra))) {
+    stop("Don't yet support protocol-based sub schemas")
   }
 
   for (p in extra) {
