@@ -34,8 +34,15 @@ global.ajv_create_object = function(meta_schema_version) {
 }
 
 // TODO: we can push greedy into here
-global.ajv_create = function(key, meta_schema_version, schema, reference) {
+global.ajv_create = function(key, meta_schema_version, schema, dependencies,
+                             reference) {
     var ret = ajv_create_object(meta_schema_version);
+
+    // no fat arrow support here unfortunately...
+    if (dependencies) {
+        dependencies.forEach(function(x) {ret.addSchema(x.value, x.id)});
+    }
+
     if (reference === null) {
         ret = ret.compile(schema);
     } else {
@@ -78,6 +85,31 @@ global.get_meta_schema_version = function(schema) {
 global.validator_stats = function() {
     return {"imjv": Object.keys(validators["imjv"]).length,
             "ajv": Object.keys(validators["ajv"]).length};
+}
+
+global.find_reference = function(x) {
+    deps = []
+
+    f = function(x) {
+        if (Array.isArray(x)) {
+            // need to descend into arrays as they're used for things
+            // like oneOf or anyOf constructs.
+            x.forEach(f);
+        } else if (typeof(x) === "object") {
+            // From the JSON schema docs:
+            //
+            // > You will always use $ref as the only key in an
+            // > object: any other keys you put there will be ignored
+            // > by the validator.
+            if ("$ref" in x) {
+                deps.push(x["$ref"]);
+            } else {
+                Object.values(x).forEach(f);
+            }
+        }
+    }
+    f(x);
+    return deps;
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})

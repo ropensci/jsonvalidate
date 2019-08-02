@@ -30,3 +30,22 @@ random_id <- function() {
 `%||%` <- function(a, b) {
   if (is.null(a)) b else a
 }
+
+
+
+with_dir <- function(path, code) {
+  owd <- setwd(path)
+  on.exit(setwd(owd))
+  force(code)
+}
+
+
+vlapply <- function(X, FUN, ...) {
+  vapply(X, FUN, logical(1), ...)
+}
+
+
+vcapply <- function(X, FUN, ...) {
+  vapply(X, FUN, character(1), ...)
+
+}

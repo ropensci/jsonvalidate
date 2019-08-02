@@ -1,8 +1,84 @@
 read_schema <- function(x, v8) {
-  schema <- get_string(x, "schema")
-  meta_schema_version <- read_meta_schema_version(schema, v8)
+  if (length(x) == 0L) {
+    stop("zero length input")
+  }
+  if (!is.character(x)) {
+    stop("Expected a character vector")
+  }
 
-  list(schema = schema, meta_schema_version = meta_schema_version)
+  children <- new.env(parent = emptyenv())
+  parent <- NULL
+
+  if (length(x) == 1 && !inherits(x, "AsIs") && file.exists(x)) {
+    workdir <- dirname(x)
+    filename <- basename(x)
+    ret <- with_dir(workdir,
+                    read_schema_filename(filename, children, parent, v8))
+  } else {
+    ret <- read_schema_string(x, children, parent, v8)
+  }
+
+  dependencies <- as.list(children)
+
+  ## It's quite hard to safely ship out the contents of the schema to
+  ## ajv because it is assuming that we get ready-to-go js.  So we
+  ## need to manually construct safe js here.  The alternatives all
+  ## seem a bit ickier - we could pass in the string representation
+  ## here and then parse it back out to json (JSON.parse) on each
+  ## element which would be easier to control but it seems
+  ## unnecessary.
+  if (length(dependencies) > 0L) {
+    versions <- lapply(dependencies, "[[", "meta_schema_version")
+    versions <- versions[!vlapply(versions, is.null)]
+    if (length(versions) > 0L) {
+      browser()
+    }
+
+    dependencies <- vcapply(dependencies, function(x)
+      sprintf('{"id": "%s", "value": %s}', x$filename, x$schema))
+    ret$dependencies <- sprintf("[%s]", paste(dependencies, collapse = ", "))
+  }
+
+  ret
+}
+
+read_schema_filename <- function(filename, children, parent, v8) {
+  if (!file.exists(filename)) {
+    stop(sprintf("Did not find schema file '%s'", filename))
+  }
+
+  schema <- paste(readLines(filename), collapse = "\n")
+
+  meta_schema_version <- read_meta_schema_version(schema, v8)
+  read_schema_dependencies(schema, children, c(filename, parent), v8)
+  list(schema = schema, filename = filename,
+       meta_schema_version = meta_schema_version)
+}
+
+
+read_schema_string <- function(string, children, parent, v8) {
+  meta_schema_version <- read_meta_schema_version(string, v8)
+  read_schema_dependencies(string, children, c("(string)", parent), v8)
+  list(schema = string, filename = NULL,
+       meta_schema_version = meta_schema_version)
+}
+
+
+read_schema_dependencies <- function(schema, children, parent, v8) {
+  extra <- setdiff(find_schema_dependencies(schema, v8),
+                   names(children))
+
+  if (length(extra) == 0L) {
+    return(NULL)
+  }
+
+  for (p in extra) {
+    children[[p]] <- withCallingHandlers(
+      read_schema_filename(p, children, parent, v8),
+      error = function(e) {
+        browser()
+      })
+  }
 }
 
 
@@ -18,4 +94,9 @@ read_meta_schema_version <- function(schema, v8) {
   }
 
   version
+}
+
+
+find_schema_dependencies <- function(schema, v8) {
+  v8$call("find_reference", V8::JS(schema))
 }

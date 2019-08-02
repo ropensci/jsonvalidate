@@ -65,6 +65,16 @@ json_validator_imjv <- function(schema, v8) {
   name <- random_id()
   meta_schema_version <- schema$meta_schema_version %||% "draft-04"
 
+  if (meta_schema_version != "draft-04") {
+    stop(sprintf(
+      "meta schema version '%s' is only supported with engine 'ajv'",
+      meta_schema_version))
+  }
+
+  if (length(schema$dependencies) > 0L) {
+    stop("Schema references are only supported with engine 'ajv'")
+  }
+
   v8$call("imjv_create", name, meta_schema_version, V8::JS(schema$schema))
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
@@ -89,9 +99,9 @@ json_validator_ajv <- function(schema, v8, reference) {
   if (is.null(reference)) {
     reference <- V8::JS("null")
   }
-
+  dependencies <- V8::JS(schema$dependencies %||% "null")
   v8$call("ajv_create", name, meta_schema_version, V8::JS(schema$schema),
-          reference)
+          dependencies, reference)
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
     res <- v8$call("ajv_call", name, V8::JS(get_string(json)),

@@ -189,3 +189,30 @@ test_that("package support", {
   expect_equal(s$imjv, 0)
   expect_equal(s$ajv, 0)
 })
+
+
+test_that("Simple file references work", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "child.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(path, "child.json"))
+
+  v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v('{"hello": "world"}'))
+})
