@@ -180,6 +180,22 @@ test_that("can't use invalid engines", {
 })
 
 
+test_that("can't use new schema versions with imjv", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-07/schema#',
+    'type': 'object',
+    'properties': {
+      'a': {
+        'const': 'foo'
+      }
+    }
+  }"
+  expect_error(
+    json_validator(schema, engine = "imjv"),
+    "meta schema version 'draft-07' is only supported with engine 'ajv'")
+})
+
+
 test_that("package support", {
   res <- prepare_js()
   expect_is(res, "V8")

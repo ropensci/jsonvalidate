@@ -90,13 +90,18 @@ read_schema_dependencies <- function(schema, children, parent, v8) {
 
 
 read_meta_schema_version <- function(schema, v8) {
-  meta_schema <- v8$eval(sprintf("get_meta_schema_version(%s)", schema))
+  meta_schema <- v8$call("get_meta_schema_version", V8::JS(schema))
+  if (is.null(meta_schema)) {
+    return(NULL)
+  }
 
   regex <- "^http://json-schema.org/(draft-\\d{2})/schema#$"
   version <- gsub(regex, "\\1", meta_schema)
 
+  ## TODO: this is unclear - I think we might be better off erroring
+  ## instead
   versions_legal <- c("draft-04", "draft-06", "draft-07")
-  if (!version %in% versions_legal) {
+  if (!(version %in% versions_legal)) {
     return(NULL)
   }
 
