@@ -80,10 +80,21 @@ read_schema_dependencies <- function(schema, children, parent, v8) {
   }
 
   for (p in extra) {
-    children[[p]] <- withCallingHandlers(
+    ## Mark name as one that we will not descend further with
+    children[[p]] <- NULL
+    ## I feel this should be easier to do with withCallingHandlers,
+    ## but not getting anywhere there.
+    children[[p]] <- tryCatch(
       read_schema_filename(p, children, parent, v8),
       error = function(e) {
-        browser()
+        if (!inherits(e, "jsonvalidate_read_error")) {
+          e$message <- sprintf("While reading %s\n%s",
+                               paste(squote(rev(parent)), collapse = " > "),
+                               e$message)
+          class(e) <- c("jsonvalidate_read_error", class(e))
+          e$call <- NULL
+        }
+        stop(e)
       })
   }
 }

@@ -49,3 +49,8 @@ vcapply <- function(X, FUN, ...) {
   vapply(X, FUN, character(1), ...)
 
 }
+
+
+squote <- function(x) {
+  sprintf("'%s'", x)
+}
