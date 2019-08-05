@@ -64,3 +64,56 @@ test_that("Read recursive schema", {
   expect_true(v('["a"]'))
   expect_true(v('["a", ["b", "c", 3]]'))
 })
+
+
+test_that("can't read external schemas", {
+  a <- c(
+    '{',
+    '"$ref": "https://example.com/schema.json"',
+    '}')
+  expect_error(read_schema(a, env$ct),
+               "Don't yet support protocol-based sub schemas")
+})
+
+
+test_that("invalid schema version", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-99/schema#',
+    'type': 'object',
+    'properties': {
+      'a': {
+        'const': 'foo'
+      }
+    }
+  }"
+  expect_error(
+    read_schema(schema, env$ct),
+    "Unknown meta schema version 'draft-99'")
+})
+
+
+test_that("Conflicting schema versions", {
+  a <- c(
+    '{',
+    '  "$schema": "http://json-schema.org/draft-07/schema#",',
+    '  "$ref": "b.json"',
+    '}')
+  b <- c(
+    '{',
+    '  "$schema": "http://json-schema.org/draft-04/schema#",',
+    '  "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(a, file.path(path, "a.json"))
+  writeLines(b, file.path(path, "b.json"))
+  expect_error(
+    read_schema(file.path(path, "a.json"), env$ct),
+    "Conflicting subschema versions used:\n  - draft-04: b.json")
+  expect_error(
+    with_dir(path, read_schema(a, env$ct)),
+    "Conflicting subschema versions used:\n.+- draft-07: \\(input string\\)")
+  writeLines(sub("-04", "-07", b), file.path(path, "b.json"))
+  x <- read_schema(file.path(path, "a.json"), env$ct)
+  expect_equal(x$meta_schema_version, "draft-07")
+})

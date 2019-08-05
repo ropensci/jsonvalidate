@@ -20,20 +20,16 @@ read_schema <- function(x, v8) {
 
   dependencies <- as.list(children)
 
-  ## It's quite hard to safely ship out the contents of the schema to
-  ## ajv because it is assuming that we get ready-to-go js.  So we
-  ## need to manually construct safe js here.  The alternatives all
-  ## seem a bit ickier - we could pass in the string representation
-  ## here and then parse it back out to json (JSON.parse) on each
-  ## element which would be easier to control but it seems
-  ## unnecessary.
-  if (length(dependencies) > 0L) {
-    versions <- lapply(dependencies, "[[", "meta_schema_version")
-    versions <- versions[!vlapply(versions, is.null)]
-    if (length(versions) > 0L) {
-      browser()
-    }
+  ret$meta_schema_version <- check_schema_versions(ret, dependencies)
 
+  if (length(dependencies) > 0L) {
+    ## It's quite hard to safely ship out the contents of the schema to
+    ## ajv because it is assuming that we get ready-to-go js.  So we
+    ## need to manually construct safe js here.  The alternatives all
+    ## seem a bit ickier - we could pass in the string representation
+    ## here and then parse it back out to json (JSON.parse) on each
+    ## element which would be easier to control but it seems
+    ## unnecessary.
     dependencies <- vcapply(dependencies, function(x)
       sprintf('{"id": "%s", "value": %s}', x$filename, x$schema))
     ret$dependencies <- sprintf("[%s]", paste(dependencies, collapse = ", "))
@@ -41,6 +37,7 @@ read_schema <- function(x, v8) {
 
   ret
 }
+
 
 read_schema_filename <- function(filename, children, parent, v8) {
   if (!file.exists(filename)) {
@@ -109,11 +106,9 @@ read_meta_schema_version <- function(schema, v8) {
   regex <- "^http://json-schema.org/(draft-\\d{2})/schema#$"
   version <- gsub(regex, "\\1", meta_schema)
 
-  ## TODO: this is unclear - I think we might be better off erroring
-  ## instead
   versions_legal <- c("draft-04", "draft-06", "draft-07")
   if (!(version %in% versions_legal)) {
-    return(NULL)
+    stop(sprintf("Unknown meta schema version '%s'", version))
   }
 
   version
@@ -122,4 +117,33 @@ read_meta_schema_version <- function(schema, v8) {
 
 find_schema_dependencies <- function(schema, v8) {
   v8$call("find_reference", V8::JS(schema))
+}
+
+
+check_schema_versions <- function(schema, dependencies) {
+  version <- schema$meta_schema_version
+
+  versions <- lapply(dependencies, "[[", "meta_schema_version")
+  versions <- versions[!vlapply(versions, is.null)]
+  versions <- vcapply(versions, identity)
+  version_dependencies <- unique(versions)
+
+  if (length(versions) == 0L) {
+    return(version)
+  }
+
+  versions_used <- c(setNames(version, schema$filename %||% "(input string)"),
+                     versions)
+  versions_used_unique <- unique(versions_used)
+  if (length(versions_used_unique) == 1L) {
+    return(versions_used_unique)
+  }
+
+  err <- split(names(versions_used), versions_used)
+  err <- vcapply(names(err), function(v)
+    sprintf("  - %s: %s", v, paste(err[[v]], collapse = ", ")),
+    USE.NAMES = FALSE)
+  stop(paste0("Conflicting subschema versions used:\n",
+              paste(err, collapse = "\n")),
+       call. = FALSE)
 }
