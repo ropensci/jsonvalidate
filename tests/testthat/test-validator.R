@@ -173,6 +173,32 @@ test_that("can't use subschema reference with imjv", {
                "subschema validation only supported with engine 'ajv'")
 })
 
+test_that("can't use nested schemas with imjv", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "child.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(path, "child.json"))
+
+  expect_error(
+    json_validator(file.path(path, "parent.json"), engine = "imjv"),
+    "Schema references are only supported with engine 'ajv'")
+})
+
 
 test_that("can't use invalid engines", {
   expect_error(json_validator("{}", engine = "magic"),
