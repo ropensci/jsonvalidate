@@ -132,7 +132,7 @@ check_schema_versions <- function(schema, dependencies) {
     return(version)
   }
 
-  versions_used <- c(setNames(version, schema$filename %||% "(input string)"),
+  versions_used <- c(set_names(version, schema$filename %||% "(input string)"),
                      versions)
   versions_used_unique <- unique(versions_used)
   if (length(versions_used_unique) == 1L) {

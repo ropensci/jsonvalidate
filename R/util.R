@@ -54,3 +54,9 @@ vcapply <- function(X, FUN, ...) {
 squote <- function(x) {
   sprintf("'%s'", x)
 }
+
+
+set_names <- function(x, nms) {
+  names(x) <- nms
+  x
+}
