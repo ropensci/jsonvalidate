@@ -104,7 +104,9 @@ global.find_reference = function(x) {
             if ("$ref" in x) {
                 deps.push(x["$ref"]);
             }
-            Object.values(x).forEach(f);
+            // Would be nicer with Object.values but that does not
+            // work on travis apparently.
+            Object.keys(x).forEach(function(k) {f(x[k]);});
         }
     }
     f(x);

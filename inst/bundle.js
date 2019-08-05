@@ -100,12 +100,15 @@ global.find_reference = function(x) {
             //
             // > You will always use $ref as the only key in an
             // > object: any other keys you put there will be ignored
-            // > by the validator.
+            // > by the validator
+            //
+            // though this turns not to be true empirically...
             if ("$ref" in x) {
                 deps.push(x["$ref"]);
-            } else {
-                Object.values(x).forEach(f);
             }
+            // Would be nicer with Object.values but that does not
+            // work on travis apparently.
+            Object.keys(x).forEach(function(k) {f(x[k]);});
         }
     }
     f(x);
