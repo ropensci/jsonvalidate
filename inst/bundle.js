@@ -38,9 +38,9 @@ global.ajv_create = function(key, meta_schema_version, schema, dependencies,
                              reference) {
     var ret = ajv_create_object(meta_schema_version);
 
-    // no fat arrow support here unfortunately...
     if (dependencies) {
-        dependencies.forEach(function(x) {ret.addSchema(x.value, x.id)});
+        dependencies.forEach(
+            function(x) {ret.addSchema(drop_id(x.value), x.id)});
     }
 
     if (reference === null) {
@@ -49,6 +49,12 @@ global.ajv_create = function(key, meta_schema_version, schema, dependencies,
         ret = ret.addSchema(schema).getSchema(reference);
     }
     validators["ajv"][key] = ret;
+}
+
+global.drop_id = function(x) {
+    delete x.id;
+    delete x.$id;
+    return x;
 }
 
 global.imjv_create = function(key, meta_schema_version, schema) {
