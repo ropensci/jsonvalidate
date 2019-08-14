@@ -146,3 +146,24 @@ test_that("Sensible reporting on syntax error", {
     "While reading 'parent.json' > 'child.json'",
     class = "jsonvalidate_read_error")
 })
+
+
+test_that("schema string vs filename detection", {
+  expect_false(read_schema_is_filename("''"))
+  expect_false(read_schema_is_filename('""'))
+  expect_false(read_schema_is_filename('{}'))
+  expect_true(read_schema_is_filename('/foo/bar.json'))
+  expect_true(read_schema_is_filename('bar.json'))
+  expect_true(read_schema_is_filename('bar'))
+
+  expect_false(read_schema_is_filename(character()))
+  expect_false(read_schema_is_filename(c("a", "b")))
+  expect_false(read_schema_is_filename(I('/foo/bar.json')))
+})
+
+
+test_that("sensible error if reading missing schema", {
+  expect_error(
+    read_schema("/file/that/does/not/exist.json"),
+    "Schema '/file/that/does/not/exist.json' looks like a filename but")
+})

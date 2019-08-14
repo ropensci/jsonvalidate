@@ -9,7 +9,10 @@ read_schema <- function(x, v8) {
   children <- new.env(parent = emptyenv())
   parent <- NULL
 
-  if (length(x) == 1 && !inherits(x, "AsIs") && file.exists(x)) {
+  if (read_schema_is_filename(x)) {
+    if (!file.exists(x)) {
+      stop(sprintf("Schema '%s' looks like a filename but does not exist", x))
+    }
     workdir <- dirname(x)
     filename <- basename(x)
     ret <- with_dir(workdir,
@@ -145,4 +148,10 @@ check_schema_versions <- function(schema, dependencies) {
   stop(paste0("Conflicting subschema versions used:\n",
               paste(err, collapse = "\n")),
        call. = FALSE)
+}
+
+
+read_schema_is_filename <- function(x) {
+  RE_JSON <- "[{['\"]"
+  !(length(x) != 1 || inherits(x, "AsIs") || grepl(RE_JSON, x))
 }
