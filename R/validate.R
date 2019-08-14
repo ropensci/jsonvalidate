@@ -45,7 +45,7 @@ json_validator <- function(schema, engine = "imjv", reference = NULL) {
 
 ##' Validate a single json against a schema.  This is a convenience
 ##' wrapper around \code{json_validator(schema)(json)}.  See
-##' \code{\link{json_Validator}} for further details.
+##' \code{\link{json_validator}} for further details.
 ##'
 ##' @title Validate a json file
 ##'

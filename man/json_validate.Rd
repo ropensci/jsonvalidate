@@ -39,7 +39,7 @@ would check that the json is a valid "Hello" object. Only available if
 \description{
 Validate a single json against a schema.  This is a convenience
 wrapper around \code{json_validator(schema)(json)}.  See
-\code{\link{json_Validator}} for further details.
+\code{\link{json_validator}} for further details.
 }
 \examples{
 # A simple schema example:
