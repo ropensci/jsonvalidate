@@ -85,9 +85,8 @@ read_schema_dependencies <- function(schema, children, parent, v8) {
       read_schema_filename(p, children, parent, v8),
       error = function(e) {
         if (!inherits(e, "jsonvalidate_read_error")) {
-          e$message <- sprintf("While reading %s\n%s",
-                               paste(squote(rev(parent)), collapse = " > "),
-                               e$message)
+          chain <- paste(squote(c(rev(parent), p)), collapse = " > ")
+          e$message <- sprintf("While reading %s\n%s", chain, e$message)
           class(e) <- c("jsonvalidate_read_error", class(e))
           e$call <- NULL
         }

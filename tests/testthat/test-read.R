@@ -33,11 +33,12 @@ test_that("sensible error on missing files", {
   writeLines(b, file.path(path, "b.json"))
   expect_error(
     read_schema(file.path(path, "b.json"), env$ct),
-    "While reading 'b.json'\nDid not find schema file 'c.json'",
+    "While reading 'b.json' > 'c.json'\nDid not find schema file 'c.json'",
     class = "jsonvalidate_read_error")
   expect_error(
     read_schema(file.path(path, "a.json"), env$ct),
-    "While reading 'a.json' > 'b.json'\nDid not find schema file 'c.json'",
+    paste0("While reading 'a.json' > 'b.json' > 'c.json'\n",
+           "Did not find schema file 'c.json'"),
     class = "jsonvalidate_read_error")
 })
 
@@ -116,4 +117,32 @@ test_that("Conflicting schema versions", {
   writeLines(sub("-04", "-07", b), file.path(path, "b.json"))
   x <- read_schema(file.path(path, "a.json"), env$ct)
   expect_equal(x$meta_schema_version, "draft-07")
+})
+
+
+test_that("Sensible reporting on syntax error", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "child.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "id": "child"',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(path, "child.json"))
+  expect_error(
+    read_schema(file.path(path, "parent.json"), env$ct),
+    "While reading 'parent.json' > 'child.json'",
+    class = "jsonvalidate_read_error")
 })
