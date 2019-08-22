@@ -5,7 +5,7 @@
 \title{Validate a json file}
 \usage{
 json_validate(json, schema, verbose = FALSE, greedy = FALSE,
-  error = FALSE, engine = "imjv", reference = NULL)
+  error = FALSE, engine = "imjv", reference = NULL, query = NULL)
 }
 \arguments{
 \item{json}{Contents of a json object, or a filename containing
@@ -35,6 +35,12 @@ if the schema has a 'definitions' list including a definition for a
 'Hello' object, one could pass "#/definitions/Hello" and the validator
 would check that the json is a valid "Hello" object. Only available if 
 \code{engine = 'ajv'}.}
+
+\item{query}{A string indicating a component of the data to
+validate the schema against.  Eventually this may support full
+\href{https://www.npmjs.com/package/jsonpath}{jsonpath} syntax,
+but for now this must be the name of an element within
+\code{json}.  See the examples for more details.}
 }
 \description{
 Validate a single json against a schema.  This is a convenience
@@ -78,10 +84,16 @@ schema <- '{
 jsonvalidate::json_validate("{}", schema, verbose = TRUE)
 
 # Test if some (valid) json conforms to the schema
-jsonvalidate::json_validate('{
+json <- '{
     "id": 1,
     "name": "A green door",
     "price": 12.50,
     "tags": ["home", "green"]
-}', schema)
+}'
+jsonvalidate::json_validate(json, schema)
+
+# Test a fraction of a data against a reference into the schema:
+jsonvalidate::json_validate(json, schema,
+                            query = "tags", reference = "#/properties/tags",
+                            engine = "ajv", verbose = TRUE)
 }

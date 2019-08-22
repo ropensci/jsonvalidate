@@ -7,5 +7,4 @@ echo "Working in $(pwd)"
 
 rm -rf node_modules
 npm install
-browserify in.js > bundle.js
-uglifyjs bundle.js > bundle.min.js
+./node_modules/.bin/browserify in.js > bundle.js

@@ -5,7 +5,7 @@ global.AjvSchema6 = require('ajv/lib/refs/json-schema-draft-06.json');
 global.imjv = require('is-my-json-valid');
 
 // Storage for validators so we can interact with them from R
-global.validators = {"imjv": {}, "ajv": {}}
+global.validators = {"imjv": {}, "ajv": {}};
 
 global.ajv_create_object = function(meta_schema_version) {
     if (meta_schema_version === "draft-04") {
@@ -64,9 +64,9 @@ global.imjv_create = function(key, meta_schema_version, schema) {
     validators["imjv"][key] = ret;
 }
 
-global.ajv_call = function(key, value, errors) {
+global.ajv_call = function(key, value, errors, query) {
     var validator = validators["ajv"][key];
-    var success = validator(value);
+    var success = validator(jsonpath_eval(value, query));
     var errors = (!success && errors ? validator.errors : null);
     return {"success": success, "errors": errors, "engine": "ajv"};
 }
@@ -117,4 +117,19 @@ global.find_reference = function(x) {
     }
     f(x);
     return deps;
+}
+
+// It might be nice to do this with jsonpath, but that does not seem
+// to work well with browserify.  For now, we're going to accept
+// 'query' as a string corresponding to a single element
+global.jsonpath_eval = function(data, query) {
+    if (query === null) {
+        return(data);
+    }
+    if (data === null || Array.isArray(data) || typeof(data) !== "object") {
+        throw new Error("Query only supported with object json");
+    } else if (!(query in data)) {
+        throw new Error("Query did not match any element in the data");
+    }
+    return data[query];
 }

@@ -34,9 +34,15 @@ schema <- '{
 jsonvalidate::json_validate("{}", schema, verbose = TRUE)
 
 # Test if some (valid) json conforms to the schema
-jsonvalidate::json_validate('{
+json <- '{
     "id": 1,
     "name": "A green door",
     "price": 12.50,
     "tags": ["home", "green"]
-}', schema)
+}'
+jsonvalidate::json_validate(json, schema)
+
+# Test a fraction of a data against a reference into the schema:
+jsonvalidate::json_validate(json, schema,
+                            query = "tags", reference = "#/properties/tags",
+                            engine = "ajv", verbose = TRUE)
