@@ -287,3 +287,45 @@ test_that("Referenced schemas have their ids replaced", {
   expect_false(v("{}"))
   expect_true(v('{"hello": "world"}'))
 })
+
+
+test_that("Can validate fraction of a json object", {
+  schema <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "x": {',
+    '            type: "string"',
+    '        },',
+    '    },',
+    '    "required": ["x"]',
+    '}')
+  data <- c(
+    '{',
+    '    "a": {',
+    '        "x": "string"',
+    '    },',
+    '    "b": {',
+    '        y: 1',
+    '    }',
+    '}')
+
+  expect_false(json_validate(data, schema, engine = "ajv"))
+  expect_true(json_validate(data, schema, engine = "ajv", query = "a"))
+  expect_false(json_validate(data, schema, engine = "ajv", query = "b"))
+
+  expect_error(
+    json_validate(data, schema, engine = "imjv", query = "c"),
+    "Queries are only supported with engine 'ajv'")
+
+  expect_error(
+    json_validate(data, schema, engine = "ajv", query = "c"),
+    "Query did not match any element in the data")
+
+  expect_error(
+    json_validate("[]", schema, engine = "ajv", query = "c"),
+    "Query only supported with object json")
+  expect_error(
+    json_validate("null", schema, engine = "ajv", query = "c"),
+    "Query only supported with object json")
+})

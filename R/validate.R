@@ -63,13 +63,20 @@ json_validator <- function(schema, engine = "imjv", reference = NULL) {
 ##'   then the function returns \code{NULL} on success (i.e., call
 ##'   only for the side-effect of an error on failure, like
 ##'   \code{stopifnot}).
+##'
+##' @param query A string indicating a component of the data to
+##'   validate the schema against.  Eventually this may support full
+##'   \href{https://www.npmjs.com/package/jsonpath}{jsonpath} syntax,
+##'   but for now this must be the name of an element within
+##'   \code{json}.  See the examples for more details.
 ##'   
 ##' @export
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
-                          error = FALSE, engine = "imjv", reference = NULL) {
+                          error = FALSE, engine = "imjv", reference = NULL,
+                          query = NULL) {
   tmp <- json_validator(schema, engine, reference = reference)
-  tmp(json, verbose, greedy, error)
+  tmp(json, verbose, greedy, error, query)
 }
 
 
@@ -93,7 +100,11 @@ json_validator_imjv <- function(schema, v8, reference) {
 
   v8$call("imjv_create", name, meta_schema_version, V8::JS(schema$schema))
 
-  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
+  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
+                  query = NULL) {
+    if (!is.null(query)) {
+      stop("Queries are only supported with engine 'ajv'")
+    }
     if (error) {
       verbose <- TRUE
     }
@@ -119,9 +130,10 @@ json_validator_ajv <- function(schema, v8, reference) {
   v8$call("ajv_create", name, meta_schema_version, V8::JS(schema$schema),
           dependencies, reference)
 
-  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
+  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
+                  query = NULL) {
     res <- v8$call("ajv_call", name, V8::JS(get_string(json)),
-                   error || verbose)
+                   error || verbose, query_validate(query))
     validation_result(res, error, verbose)
   }
 
@@ -177,4 +189,17 @@ validation_error <- function(res) {
   structure(
     list(message = msg, errors = errors),
     class = c("validation_error", "error", "condition"))
+}
+
+
+query_validate <- function(query) {
+  if (is.null(query)) {
+    return(V8::JS("null"))
+  }
+  ## To ensure backward-compatibility, rule out all but the most
+  ## simple queries for now
+  if (grepl("[@.\\[$\"\'|*?()]", query)) {
+    stop("Full json-path support is not implemented")
+  }
+  query
 }
