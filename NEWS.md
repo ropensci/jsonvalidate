@@ -3,6 +3,7 @@
 * JSON can be validated against a subschema (#18, #19, @AliciaSchep)
 * Validation with `error = TRUE` now returns `TRUE` (not `NULL)` on success
 * Schemas can span multiple files, being included via `"$ref": "filename.json"` - supported with the ajv engine only (#20, #21, @r-ash).
+* Validation can be performed against a fraction of the input data (#25)
 
 ## jsonvalidate 1.1.0
 
