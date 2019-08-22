@@ -198,7 +198,7 @@ query_validate <- function(query) {
   }
   ## To ensure backward-compatibility, rule out all but the most
   ## simple queries for now
-  if (grepl("[@.\\[$\"\'|*?()]", query)) {
+  if (grepl("[/@.\\[$\"\'|*?()]", query)) {
     stop("Full json-path support is not implemented")
   }
   query

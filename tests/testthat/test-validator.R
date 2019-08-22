@@ -329,3 +329,20 @@ test_that("Can validate fraction of a json object", {
     json_validate("null", schema, engine = "ajv", query = "c"),
     "Query only supported with object json")
 })
+
+
+test_that("complex jsonpath queries are rejected", {
+  msg <- "Full json-path support is not implemented"
+  expect_error(query_validate("foo/bar"), msg)
+  expect_error(query_validate("foo?"), msg)
+  expect_error(query_validate("$foo"), msg)
+  expect_error(query_validate("foo(bar)"), msg)
+  expect_error(query_validate("foo[0]"), msg)
+  expect_error(query_validate("foo@bar"), msg)
+})
+
+
+test_that("simple jsonpath is passed along", {
+  expect_identical(query_validate("foo"), "foo")
+  expect_identical(query_validate(NULL), V8::JS("null"))
+})
