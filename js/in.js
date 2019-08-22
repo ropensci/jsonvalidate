@@ -32,14 +32,27 @@ global.ajv_create_object = function(meta_schema_version) {
 }
 
 // TODO: we can push greedy into here
-global.ajv_create = function(key, meta_schema_version, schema, reference) {
+global.ajv_create = function(key, meta_schema_version, schema, dependencies,
+                             reference) {
     var ret = ajv_create_object(meta_schema_version);
+
+    if (dependencies) {
+        dependencies.forEach(
+            function(x) {ret.addSchema(drop_id(x.value), x.id)});
+    }
+
     if (reference === null) {
         ret = ret.compile(schema);
     } else {
         ret = ret.addSchema(schema).getSchema(reference);
     }
     validators["ajv"][key] = ret;
+}
+
+global.drop_id = function(x) {
+    delete x.id;
+    delete x.$id;
+    return x;
 }
 
 global.imjv_create = function(key, meta_schema_version, schema) {
@@ -76,4 +89,32 @@ global.get_meta_schema_version = function(schema) {
 global.validator_stats = function() {
     return {"imjv": Object.keys(validators["imjv"]).length,
             "ajv": Object.keys(validators["ajv"]).length};
+}
+
+global.find_reference = function(x) {
+    deps = []
+
+    f = function(x) {
+        if (Array.isArray(x)) {
+            // need to descend into arrays as they're used for things
+            // like oneOf or anyOf constructs.
+            x.forEach(f);
+        } else if (typeof(x) === "object") {
+            // From the JSON schema docs:
+            //
+            // > You will always use $ref as the only key in an
+            // > object: any other keys you put there will be ignored
+            // > by the validator
+            //
+            // though this turns not to be true empirically...
+            if ("$ref" in x) {
+                deps.push(x["$ref"]);
+            }
+            // Would be nicer with Object.values but that does not
+            // work on travis apparently.
+            Object.keys(x).forEach(function(k) {f(x[k]);});
+        }
+    }
+    f(x);
+    return deps;
 }

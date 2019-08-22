@@ -173,10 +173,52 @@ test_that("can't use subschema reference with imjv", {
                "subschema validation only supported with engine 'ajv'")
 })
 
+test_that("can't use nested schemas with imjv", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "child.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(path, "child.json"))
+
+  expect_error(
+    json_validator(file.path(path, "parent.json"), engine = "imjv"),
+    "Schema references are only supported with engine 'ajv'")
+})
+
 
 test_that("can't use invalid engines", {
   expect_error(json_validator("{}", engine = "magic"),
                "Unknown engine 'magic'")
+})
+
+
+test_that("can't use new schema versions with imjv", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-07/schema#',
+    'type': 'object',
+    'properties': {
+      'a': {
+        'const': 'foo'
+      }
+    }
+  }"
+  expect_error(
+    json_validator(schema, engine = "imjv"),
+    "meta schema version 'draft-07' is only supported with engine 'ajv'")
 })
 
 
@@ -188,4 +230,60 @@ test_that("package support", {
   s <- res$call("validator_stats")
   expect_equal(s$imjv, 0)
   expect_equal(s$ajv, 0)
+})
+
+
+test_that("Simple file references work", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "child.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(path, "child.json"))
+
+  v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v('{"hello": "world"}'))
+})
+
+
+test_that("Referenced schemas have their ids replaced", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "child.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "id": "child",',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(path, "child.json"))
+
+  expect_silent(
+    v <- json_validator(file.path(path, "parent.json"), engine = "ajv"))
+  expect_false(v("{}"))
+  expect_true(v('{"hello": "world"}'))
 })

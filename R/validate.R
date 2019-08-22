@@ -16,24 +16,36 @@
 ##'   'Hello' object, one could pass "#/definitions/Hello" and the validator
 ##'   would check that the json is a valid "Hello" object. Only available if 
 ##'   \code{engine = 'ajv'}.
-##'   
+##'
+##' @section Using multiple files:
+##'
+##' Multiple files are supported.  You can have a schema that
+##'   references a file \code{cbild.json} using \code{{"$ref":
+##'   "child.json"}} - in this case if \code{child.json} includes an
+##'   \code{id} or \code{$id} element it will be silently dropped and
+##'   the filename used to reference the schema will be used as the
+##'   schema id.
+##'
+##' The support is currently quite limited - it will not (yet) read
+##'   sub-child schemas relative to child schema \code{$id} url, and
+##'   does not suppoort reading from URLs (only local files are
+##'   supoported).
+##'
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
 json_validator <- function(schema, engine = "imjv", reference = NULL) {
-  if (!is.null(reference) && engine != 'ajv') {
-    stop("subschema validation only supported with engine 'ajv'")
-  }
   v8 <- env$ct
   schema <- read_schema(schema, v8)
   switch(engine,
-         imjv = json_validator_imjv(schema, v8),
+         imjv = json_validator_imjv(schema, v8, reference),
          ajv = json_validator_ajv(schema, v8, reference),
          stop(sprintf("Unknown engine '%s'", engine)))
 }
 
 
 ##' Validate a single json against a schema.  This is a convenience
-##' wrapper around \code{json_validator(schema)(json)}
+##' wrapper around \code{json_validator(schema)(json)}.  See
+##' \code{\link{json_validator}} for further details.
 ##'
 ##' @title Validate a json file
 ##'
@@ -61,9 +73,23 @@ json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
 }
 
 
-json_validator_imjv <- function(schema, v8) {
+json_validator_imjv <- function(schema, v8, reference) {
   name <- random_id()
   meta_schema_version <- schema$meta_schema_version %||% "draft-04"
+
+  if (!is.null(reference)) {
+    stop("subschema validation only supported with engine 'ajv'")
+  }
+
+  if (meta_schema_version != "draft-04") {
+    stop(sprintf(
+      "meta schema version '%s' is only supported with engine 'ajv'",
+      meta_schema_version))
+  }
+
+  if (length(schema$dependencies) > 0L) {
+    stop("Schema references are only supported with engine 'ajv'")
+  }
 
   v8$call("imjv_create", name, meta_schema_version, V8::JS(schema$schema))
 
@@ -89,9 +115,9 @@ json_validator_ajv <- function(schema, v8, reference) {
   if (is.null(reference)) {
     reference <- V8::JS("null")
   }
-
+  dependencies <- V8::JS(schema$dependencies %||% "null")
   v8$call("ajv_create", name, meta_schema_version, V8::JS(schema$schema),
-          reference)
+          dependencies, reference)
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE) {
     res <- v8$call("ajv_call", name, V8::JS(get_string(json)),

@@ -1,6 +1,6 @@
 Package: jsonvalidate
 Title: Validate 'JSON'
-Version: 1.2.0
+Version: 1.2.1
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
     email = "rich.fitzjohn@gmail.com"),
     person("Alicia", "Schep", role = "ctb"),
@@ -21,6 +21,7 @@ Imports:
     V8
 Suggests:
     knitr,
+    jsonlite,
     rmarkdown,
     testthat
 RoxygenNote: 6.1.1

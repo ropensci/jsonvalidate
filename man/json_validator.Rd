@@ -25,6 +25,22 @@ would check that the json is a valid "Hello" object. Only available if
 \description{
 Create a validator that can validate multiple json files.
 }
+\section{Using multiple files}{
+
+
+Multiple files are supported.  You can have a schema that
+  references a file \code{cbild.json} using \code{{"$ref":
+  "child.json"}} - in this case if \code{child.json} includes an
+  \code{id} or \code{$id} element it will be silently dropped and
+  the filename used to reference the schema will be used as the
+  schema id.
+
+The support is currently quite limited - it will not (yet) read
+  sub-child schemas relative to child schema \code{$id} url, and
+  does not suppoort reading from URLs (only local files are
+  supoported).
+}
+
 \examples{
 # A simple schema example:
 schema <- '{
