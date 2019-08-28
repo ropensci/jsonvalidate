@@ -346,3 +346,33 @@ test_that("simple jsonpath is passed along", {
   expect_identical(query_validate("foo"), "foo")
   expect_identical(query_validate(NULL), V8::JS("null"))
 })
+
+
+test_that("stray null values in a schema are ok", {
+  ## This is stripped down version of the vegalite schema 3.3.0 which
+  ## includes a block
+  ##
+  ##   "invalidValues": {
+  ##     "description": "Defines how Vega-Lite should handle ...",
+  ##     "enum": [
+  ##       "filter",
+  ##       null
+  ##     ],
+  ##     "type": [
+  ##       "string",
+  ##       "null"
+  ##     ]
+  ##   },
+  ##
+  ## which used to break the reference detection by throwing an error
+  ## when the schema was read.
+  schema <- '{
+    "type": "object",
+    "properties": {
+      "a": {
+        "enum": ["value", null]
+      }
+    }
+  }'
+  expect_error(read_schema(schema, env$ct), NA)
+})
