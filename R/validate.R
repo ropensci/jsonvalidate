@@ -137,7 +137,7 @@ json_validator_ajv <- function(schema, v8, reference) {
     validation_result(res, error, verbose)
   }
 
-  reg.finalizer(environment(ret), validator_delete("imjv", name, v8))
+  reg.finalizer(environment(ret), validator_delete("ajv", name, v8))
 
   ret
 }

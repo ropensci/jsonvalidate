@@ -99,7 +99,7 @@ global.find_reference = function(x) {
             // need to descend into arrays as they're used for things
             // like oneOf or anyOf constructs.
             x.forEach(f);
-        } else if (typeof(x) === "object") {
+        } else if (typeof(x) === "object" && x !== null) {
             // From the JSON schema docs:
             //
             // > You will always use $ref as the only key in an
