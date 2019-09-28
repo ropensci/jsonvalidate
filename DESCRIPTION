@@ -1,5 +1,5 @@
 Package: jsonvalidate
-Title: Validate 'JSON'
+Title: Validate 'JSON' Schema
 Version: 1.2.2
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
     email = "rich.fitzjohn@gmail.com"),

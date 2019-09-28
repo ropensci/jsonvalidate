@@ -1,10 +1,10 @@
 ---
-title: "jsonvalidate"
+title: "Introduction to jsonvalidate"
 author: "Rich FitzJohn"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{jsonvalidate}
+  %\VignetteIndexEntry{Introduction to jsonvalidate}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
