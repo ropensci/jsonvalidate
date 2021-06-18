@@ -4,8 +4,16 @@
 \alias{json_validate}
 \title{Validate a json file}
 \usage{
-json_validate(json, schema, verbose = FALSE, greedy = FALSE,
-  error = FALSE, engine = "imjv", reference = NULL, query = NULL)
+json_validate(
+  json,
+  schema,
+  verbose = FALSE,
+  greedy = FALSE,
+  error = FALSE,
+  engine = "imjv",
+  reference = NULL,
+  query = NULL
+)
 }
 \arguments{
 \item{json}{Contents of a json object, or a filename containing
@@ -29,11 +37,11 @@ only for the side-effect of an error on failure, like
 (Another JSON Schema Validator).  The latter supports more
 recent json schema features.}
 
-\item{reference}{Reference within schema to use for validating against a 
+\item{reference}{Reference within schema to use for validating against a
 sub-schema instead of the full schema passed in. For example
-if the schema has a 'definitions' list including a definition for a 
+if the schema has a 'definitions' list including a definition for a
 'Hello' object, one could pass "#/definitions/Hello" and the validator
-would check that the json is a valid "Hello" object. Only available if 
+would check that the json is a valid "Hello" object. Only available if
 \code{engine = 'ajv'}.}
 
 \item{query}{A string indicating a component of the data to
@@ -52,7 +60,7 @@ wrapper around \code{json_validator(schema)(json)}.  See
 schema <- '{
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "Product",
-    "description": "A product from Acme\\'s catalog",
+    "description": "A product from Acme\'s catalog",
     "type": "object",
     "properties": {
         "id": {

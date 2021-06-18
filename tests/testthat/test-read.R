@@ -167,3 +167,25 @@ test_that("sensible error if reading missing schema", {
     read_schema("/file/that/does/not/exist.json"),
     "Schema '/file/that/does/not/exist.json' looks like a filename but")
 })
+
+test_that("can reference subsets of other schema", {
+  a <- c(
+    '{',
+    '"$ref": "b.json#/definitions/b"',
+    '}')
+  b <- c(
+    '{',
+    '    "definitions": {',
+    '        "b": {',
+    '            "type": "string"',
+    '        }',
+    '    }',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(a, file.path(path, "a.json"))
+  writeLines(b, file.path(path, "b.json"))
+  schema <- read_schema(file.path(path, "a.json"), env$ct)
+  expect_equal(length(schema$dependencies), 1)
+  expect_equal(jsonlite::fromJSON(schema$dependencies)$id, "b.json")
+})
