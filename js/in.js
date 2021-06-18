@@ -32,19 +32,25 @@ global.ajv_create_object = function(meta_schema_version) {
 }
 
 // TODO: we can push greedy into here
-global.ajv_create = function(key, meta_schema_version, schema, dependencies,
-                             reference) {
+global.ajv_create = function(key, meta_schema_version, schema, filename,
+                             dependencies, reference) {
     var ret = ajv_create_object(meta_schema_version);
 
     if (dependencies) {
         dependencies.forEach(
-            function(x) {ret.addSchema(drop_id(x.value), x.id)});
+            function(x) {
+                // Avoid adding a dependency and then adding it again as the
+                // main schema. This might occur if we have recusive references.
+                if (x.id !== filename) {
+                    ret.addSchema(drop_id(x.value), x.id)
+                }
+            });
     }
 
     if (reference === null) {
-        ret = ret.compile(schema);
+        ret = ret.addSchema(drop_id(schema), filename).getSchema(filename);
     } else {
-        ret = ret.addSchema(schema).getSchema(reference);
+        ret = ret.addSchema(drop_id(schema), filename).getSchema(reference);
     }
     validators["ajv"][key] = ret;
 }

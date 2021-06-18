@@ -1,3 +1,7 @@
+## jsonvalidate 1.2.3
+
+* Schemas can use references to other files with JSON pointers i.e. schemas can reference parts of other files e.g. `definitions.json#/definitions/hello`
+
 ## jsonvalidate 1.?.?
 
 * JSON can be validated against a subschema (#18, #19, @AliciaSchep)

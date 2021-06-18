@@ -9,18 +9,18 @@
 ##'   "imjv" (the default; which uses "is-my-json-valid") and "ajv"
 ##'   (Another JSON Schema Validator).  The latter supports more
 ##'   recent json schema features.
-##'   
-##' @param reference Reference within schema to use for validating against a 
+##'
+##' @param reference Reference within schema to use for validating against a
 ##'   sub-schema instead of the full schema passed in. For example
-##'   if the schema has a 'definitions' list including a definition for a 
+##'   if the schema has a 'definitions' list including a definition for a
 ##'   'Hello' object, one could pass "#/definitions/Hello" and the validator
-##'   would check that the json is a valid "Hello" object. Only available if 
+##'   would check that the json is a valid "Hello" object. Only available if
 ##'   \code{engine = 'ajv'}.
 ##'
 ##' @section Using multiple files:
 ##'
 ##' Multiple files are supported.  You can have a schema that
-##'   references a file \code{cbild.json} using \code{{"$ref":
+##'   references a file \code{child.json} using \code{{"$ref":
 ##'   "child.json"}} - in this case if \code{child.json} includes an
 ##'   \code{id} or \code{$id} element it will be silently dropped and
 ##'   the filename used to reference the schema will be used as the
@@ -69,7 +69,7 @@ json_validator <- function(schema, engine = "imjv", reference = NULL) {
 ##'   \href{https://www.npmjs.com/package/jsonpath}{jsonpath} syntax,
 ##'   but for now this must be the name of an element within
 ##'   \code{json}.  See the examples for more details.
-##'   
+##'
 ##' @export
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
@@ -126,9 +126,12 @@ json_validator_ajv <- function(schema, v8, reference) {
   if (is.null(reference)) {
     reference <- V8::JS("null")
   }
+  if (is.null(schema$filename)) {
+    schema$filename <- V8::JS("null")
+  }
   dependencies <- V8::JS(schema$dependencies %||% "null")
   v8$call("ajv_create", name, meta_schema_version, V8::JS(schema$schema),
-          dependencies, reference)
+          schema$filename, dependencies, reference)
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
                   query = NULL) {

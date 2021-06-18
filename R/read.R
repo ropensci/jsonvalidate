@@ -79,6 +79,11 @@ read_schema_dependencies <- function(schema, children, parent, v8) {
     stop("Don't yet support protocol-based sub schemas")
   }
 
+  if (any(grepl("#/", extra))) {
+    split <- strsplit(extra, "#/")
+    extra <- lapply(split, "[[", 1)
+  }
+
   for (p in extra) {
     ## Mark name as one that we will not descend further with
     children[[p]] <- NULL

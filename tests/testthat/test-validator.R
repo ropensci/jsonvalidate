@@ -154,14 +154,14 @@ test_that("subschema validation works", {
       },
     "$ref": "#/definitions/Conversation"
   }'
-  
+
   val_goodbye <- json_validator(schema, "ajv", "#/definitions/Goodbye")
-  
+
   expect_true(val_goodbye("{'goodbye': 'failure'}"))
   expect_false(val_goodbye("{'hello': 'failure'}"))
-  
+
   val_hello <- json_validator(schema, "ajv", "#/definitions/Hello")
-  
+
   expect_false(val_hello("{'goodbye': 'failure'}"))
   expect_true(val_hello("{'hello': 'failure'}"))
 })
@@ -375,4 +375,107 @@ test_that("stray null values in a schema are ok", {
     }
   }'
   expect_error(read_schema(schema, env$ct), NA)
+})
+
+
+test_that("Referencing definition in another file works", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "child.json#/definitions/greeting"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "definitions": {',
+    '        "greeting": {',
+    '            "type": "string"',
+    '        }',
+    '    }',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(path, "child.json"))
+
+  v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v('{"hello": "world"}'))
+  invalid <- v('{"hello": ["thing"]}', verbose = TRUE)
+  expect_false(invalid)
+  error <- attr(invalid, "errors", TRUE)
+  expect_equal(error$schemaPath, "child.json#/definitions/greeting/type")
+  expect_equal(error$message, "should be string")
+})
+
+
+test_that("schema can contain IDs", {
+  schema <- c(
+    '{',
+    '    "$id": "http://example.com/schemas/thing.json",',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "type": "string"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+
+  path <- tempfile()
+  dir.create(path)
+  writeLines(schema, file.path(path, "schema.json"))
+
+  v <- json_validator(file.path(path, "schema.json"), engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v("{hello: 'world'}"))
+})
+
+
+test_that("Parent schema with URL ID works", {
+  parent <- c(
+    '{',
+    '    "$id": "http://example.com/schemas/thing.json",',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "child.json#/definitions/greeting"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "definitions": {',
+    '        "first": {',
+    '            "type": "string"',
+    '        },',
+    '        "greeting": {',
+    '            "type": "object",',
+    '            "properties": {',
+    '                "name": {',
+    '                    "type": "string"',
+    '                },',
+    '                "another_prop": {',
+    '                    "type": "number"',
+    '                }',
+    '             }',
+    '        }',
+    '    }',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(path, "child.json"))
+
+  v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v('{"hello": {"name": "a name", "another_prop": 2}}'))
 })

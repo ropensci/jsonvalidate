@@ -15,11 +15,11 @@ containing a schema.}
 (Another JSON Schema Validator).  The latter supports more
 recent json schema features.}
 
-\item{reference}{Reference within schema to use for validating against a 
+\item{reference}{Reference within schema to use for validating against a
 sub-schema instead of the full schema passed in. For example
-if the schema has a 'definitions' list including a definition for a 
+if the schema has a 'definitions' list including a definition for a
 'Hello' object, one could pass "#/definitions/Hello" and the validator
-would check that the json is a valid "Hello" object. Only available if 
+would check that the json is a valid "Hello" object. Only available if
 \code{engine = 'ajv'}.}
 }
 \description{
@@ -29,7 +29,7 @@ Create a validator that can validate multiple json files.
 
 
 Multiple files are supported.  You can have a schema that
-  references a file \code{cbild.json} using \code{{"$ref":
+  references a file \code{child.json} using \code{{"$ref":
   "child.json"}} - in this case if \code{child.json} includes an
   \code{id} or \code{$id} element it will be silently dropped and
   the filename used to reference the schema will be used as the
@@ -46,7 +46,7 @@ The support is currently quite limited - it will not (yet) read
 schema <- '{
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "Product",
-    "description": "A product from Acme\\'s catalog",
+    "description": "A product from Acme\'s catalog",
     "type": "object",
     "properties": {
         "id": {
