@@ -177,7 +177,7 @@ validation_error <- function(res) {
   n <- nrow(errors)
   if (res$engine == "ajv") {
     detail <- paste(sprintf("\t- %s (%s): %s",
-                            errors$dataPath,
+                            errors$instancePath,
                             errors$schemaPath,
                             errors$message),
                     collapse = "\n")

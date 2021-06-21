@@ -410,7 +410,7 @@ test_that("Referencing definition in another file works", {
   expect_false(invalid)
   error <- attr(invalid, "errors", TRUE)
   expect_equal(error$schemaPath, "child.json#/definitions/greeting/type")
-  expect_equal(error$message, "must be a string")
+  expect_equal(error$message, "must be string")
 })
 
 
