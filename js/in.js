@@ -1,6 +1,6 @@
 global.Ajv = require('ajv');
-global.AjvSchema4 = require('ajv/lib/refs/json-schema-draft-04.json');
-global.AjvSchema6 = require('ajv/lib/refs/json-schema-draft-06.json');
+global.AjvSchema4 = require('ajv-draft-04');
+global.AjvSchema6 = require('ajv/dist/refs/json-schema-draft-06.json');
 
 global.imjv = require('is-my-json-valid');
 
@@ -13,8 +13,7 @@ global.ajv_create_object = function(meta_schema_version) {
                     schemaId: 'id',
                     allErrors: true,
                     verbose: true};
-        return new Ajv(opts)
-            .addMetaSchema(AjvSchema4)
+        return new AjvSchema4(opts)
             .removeKeyword('propertyNames')
             .removeKeyword('contains')
             .removeKeyword('const')
