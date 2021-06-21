@@ -11,10 +11,16 @@ global.validators = {"imjv": {}, "ajv": {}};
 
 global.ajv_create_object = function(meta_schema_version) {
     if (meta_schema_version === "draft-04") {
-        var opts = {meta: false,
-                    schemaId: 'id',
-                    allErrors: true,
+        // Need to disable strict mode, otherwise we get warnings
+        // about unknown schema entries in draft-04 (e.g., presence of
+        // const)
+        var opts = {allErrors: true,
+                    strict: false, // since ajv v7
                     verbose: true};
+        // Need to drop keywords present in later schema versions,
+        // otherwise they seem to be not ignored (e.g., a schema that
+        // has the 'const' keyword will check it, even though that
+        // keyword is not part of draft-04)
         return new AjvSchema4(opts)
             .removeKeyword('propertyNames')
             .removeKeyword('contains')
@@ -24,7 +30,7 @@ global.ajv_create_object = function(meta_schema_version) {
             .removeKeyword('else');
     } else {
         var opts = {allErrors: true, verbose: true};
-        var ret = new Ajv({allErrors: true, verbose: true});
+        var ret = new Ajv(opts);
         if (meta_schema_version === "draft-06") {
             ret.addMetaSchema(AjvSchema6);
         }

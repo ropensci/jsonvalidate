@@ -109,7 +109,7 @@ test_that("if/then/else keywords are supported in draft-07, not draft-04", {
     'type': 'object',
     'if': {
       'properties': {
-        'a': {'minimum': 1}
+        'a': {'type': 'number', 'minimum': 1}
       }
     },
     'then': {
