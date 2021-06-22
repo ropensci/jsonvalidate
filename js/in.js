@@ -1,6 +1,8 @@
 global.Ajv = require('ajv');
 global.AjvSchema4 = require('ajv-draft-04');
 global.AjvSchema6 = require('ajv/dist/refs/json-schema-draft-06.json');
+global.AjvSchema2019 = require('ajv/dist/2019')
+global.AjvSchema2020 = require('ajv/dist/2020')
 global.addFormats = require('ajv-formats');
 
 global.imjv = require('is-my-json-valid');
@@ -25,6 +27,10 @@ global.ajv_create_object = function(meta_schema_version, strict) {
             .removeKeyword('if')
             .removeKeyword('then')
             .removeKeyword('else');
+    } else if (meta_schema_version === "draft/2019-09") {
+        var ret = new AjvSchema2019(opts);
+    } else if (meta_schema_version === "draft/2020-12") {
+        var ret = new AjvSchema2020(opts);
     } else {
         var ret = new Ajv(opts);
         if (meta_schema_version === "draft-06") {

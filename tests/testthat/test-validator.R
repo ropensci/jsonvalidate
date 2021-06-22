@@ -570,3 +570,76 @@ test_that("json_validator falls back to ajv if version > draft-04", {
   expect_equal(msg, paste0("Trying to use schema draft-07, imjv only supports ",
                            "draft-04. Falling back to ajv engine.\n"))
 })
+
+test_that("validation works with 2019-09 schema version", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-07/schema#',
+    '$defs': {
+      'toggle': {
+        '$id': '#toggle',
+        'type': [ 'boolean', 'null' ],
+        'default': null
+      }
+    },
+    'type': 'object',
+    'properties': {
+      'enabled': {
+        '$ref': '#toggle',
+        'default': true
+      }
+    }
+  }"
+
+  expect_true(json_validate("{'enabled': true}", schema, engine = "ajv"))
+  expect_false(json_validate("{'enabled': 'test'}", schema, engine = "ajv"))
+
+  ## Switch to draft/2019-09
+  schema <- gsub("http://json-schema.org/draft-07/schema#",
+                 "https://json-schema.org/draft/2019-09/schema#", schema)
+  ## draft/2019-09 doesn't allow #plain-name form of $id
+  expect_error(json_validator(schema, engine = "ajv"),
+               "Error: schema is invalid:")
+
+  schema <- "{
+    '$schema': 'https://json-schema.org/draft/2019-09/schema#',
+    '$defs': {
+      'toggle': {
+        '$anchor': 'toggle',
+        'type': [ 'boolean', 'null' ],
+        'default': null
+      }
+    },
+    'type': 'object',
+    'properties': {
+      'enabled': {
+        '$ref': '#toggle',
+        'default': true
+      }
+    }
+  }"
+  expect_true(json_validate("{'enabled': true}", schema, engine = "ajv"))
+  expect_false(json_validate("{'enabled': 'test'}", schema, engine = "ajv"))
+})
+
+test_that("validation works with 2020-12 schema version", {
+  schema <- "{
+    '$schema': 'https://json-schema.org/draft/2020-12/schema#',
+    '$defs': {
+      'toggle': {
+        '$anchor': 'toggle',
+        'type': [ 'boolean', 'null' ],
+        'default': null
+      }
+    },
+    'type': 'object',
+    'properties': {
+      'enabled': {
+        '$ref': '#toggle',
+        'default': true
+      }
+    }
+  }"
+
+  expect_true(json_validate("{'enabled': true}", schema, engine = "ajv"))
+  expect_false(json_validate("{'enabled': 'test'}", schema, engine = "ajv"))
+})
