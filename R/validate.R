@@ -90,8 +90,9 @@ json_validator <- function(schema, engine = "ajv", reference = NULL,
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
                           error = FALSE, engine = "ajv", reference = NULL,
                           query = NULL, strict = FALSE) {
-  tmp <- json_validator(schema, engine, reference = reference, strict = strict)
-  tmp(json, verbose, greedy, error, query)
+  validator <- json_validator(schema, engine, reference = reference,
+                              strict = strict)
+  validator(json, verbose, greedy, error, query)
 }
 
 
