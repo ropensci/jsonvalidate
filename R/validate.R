@@ -40,7 +40,7 @@
 ##'
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
-json_validator <- function(schema, engine = "imjv", reference = NULL,
+json_validator <- function(schema, engine = "ajv", reference = NULL,
                            strict = FALSE) {
   v8 <- env$ct
   schema <- read_schema(schema, v8)
@@ -88,7 +88,7 @@ json_validator <- function(schema, engine = "imjv", reference = NULL,
 ##' @export
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
-                          error = FALSE, engine = "imjv", reference = NULL,
+                          error = FALSE, engine = "ajv", reference = NULL,
                           query = NULL, strict = FALSE) {
   tmp <- json_validator(schema, engine, reference = reference, strict = strict)
   tmp(json, verbose, greedy, error, query)

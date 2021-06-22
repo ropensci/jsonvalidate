@@ -15,20 +15,20 @@ test_that("is-my-json-valid", {
   }
 }"
 
-  v <- json_validator(str)
+  v <- json_validator(str, engine = "imjv")
   expect_false(v("{}"))
   expect_true(v("{hello: 'world'}"))
 
-  expect_false(json_validate("{}", str))
-  expect_true(json_validate("{hello: 'world'}", str))
+  expect_false(json_validate("{}", str, engine = "imjv"))
+  expect_true(json_validate("{hello: 'world'}", str, engine = "imjv"))
 
   f <- tempfile()
   writeLines(str, f)
-  v <- json_validator(f)
+  v <- json_validator(f, engine = "imjv")
   expect_false(v("{}"))
   expect_true(v("{hello: 'world'}"))
 
-  v <- json_validator("schema.json")
+  v <- json_validator("schema.json", engine = "imjv")
   expect_error(v("{}", error = TRUE),
                "data.hello: is required",
                class = "validation_error")

@@ -10,7 +10,7 @@ json_validate(
   verbose = FALSE,
   greedy = FALSE,
   error = FALSE,
-  engine = "imjv",
+  engine = "ajv",
   reference = NULL,
   query = NULL,
   strict = FALSE
