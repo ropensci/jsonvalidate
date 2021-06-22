@@ -8,14 +8,12 @@ global.imjv = require('is-my-json-valid');
 // Storage for validators so we can interact with them from R
 global.validators = {"imjv": {}, "ajv": {}};
 
-global.ajv_create_object = function(meta_schema_version) {
+global.ajv_create_object = function(meta_schema_version, strict) {
+    // Need to disable strict mode, otherwise we get warnings
+    // about unknown schema entries in draft-04 (e.g., presence of
+    // const) and draft-07 (e.g. presence of "reference")
+    var opts = {allErrors: true, verbose: true, strict: strict};
     if (meta_schema_version === "draft-04") {
-        // Need to disable strict mode, otherwise we get warnings
-        // about unknown schema entries in draft-04 (e.g., presence of
-        // const)
-        var opts = {allErrors: true,
-                    strict: false, // since ajv v7
-                    verbose: true};
         // Need to drop keywords present in later schema versions,
         // otherwise they seem to be not ignored (e.g., a schema that
         // has the 'const' keyword will check it, even though that
@@ -28,7 +26,6 @@ global.ajv_create_object = function(meta_schema_version) {
             .removeKeyword('then')
             .removeKeyword('else');
     } else {
-        var opts = {allErrors: true, verbose: true};
         var ret = new Ajv(opts);
         if (meta_schema_version === "draft-06") {
             ret.addMetaSchema(AjvSchema6);
@@ -39,9 +36,9 @@ global.ajv_create_object = function(meta_schema_version) {
 }
 
 // TODO: we can push greedy into here
-global.ajv_create = function(key, meta_schema_version, schema, filename,
-                             dependencies, reference) {
-    var ret = ajv_create_object(meta_schema_version);
+global.ajv_create = function(key, meta_schema_version, strict, schema,
+                             filename, dependencies, reference) {
+    var ret = ajv_create_object(meta_schema_version, strict);
 
     if (dependencies) {
         dependencies.forEach(

@@ -496,7 +496,7 @@ test_that("format keyword works", {
   expect_true(v("{'date': '2018-11-13T20:20:39+00:00'}"))
 })
 
-test_that("unknown format type throws an error", {
+test_that("unknown format type throws an error if in strict mode", {
   schema <- str <- '{
   "type": "object",
   "required": ["date"],
@@ -507,7 +507,32 @@ test_that("unknown format type throws an error", {
     }
   }
 }'
-  expect_error(json_validator(str, "ajv"),
+  expect_error(json_validator(str, "ajv", strict = TRUE),
                paste0('Error: unknown format "test" ignored in schema at ',
                       'path "#/properties/date"'))
+
+  ## Warnings printed in non-strict mode
+  msg <- capture_warnings(v <- json_validator(str, "ajv", strict = FALSE))
+  expect_equal(msg[1], paste0('unknown format "test" ignored in ',
+                              'schema at path "#/properties/date"'))
+  expect_true(v("{'date': '123'}"))
+})
+
+test_that("json_validate can be run in strict mode", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-04/schema#',
+    'type': 'object',
+    'properties': {
+      'a': {
+        'const': 'foo'
+      }
+    },
+    'reference': '1234'
+  }"
+
+  expect_true(json_validate("{'a': 'foo'}", schema, engine = "ajv"))
+
+  expect_error(
+    json_validate("{'a': 'foo'}", schema, engine = "ajv", strict = TRUE),
+    'Error: strict mode: unknown keyword: "reference"')
 })

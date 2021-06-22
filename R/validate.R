@@ -17,6 +17,13 @@
 ##'   would check that the json is a valid "Hello" object. Only available if
 ##'   \code{engine = 'ajv'}.
 ##'
+##' @param strict Set whether the schema should be parsed strictly or not.
+##'   If in strict mode schemas will error to "prevent any unexpected
+##'   behaviours or silently ignored mistakes in user schema". For example
+##'   it will error if encounters unknown formats or unknown keywords. See
+##'   https://ajv.js.org/strict-mode.html for details. Only available in
+##'   \code{engine = 'ajv'}.
+##'
 ##' @section Using multiple files:
 ##'
 ##' Multiple files are supported.  You can have a schema that
@@ -33,12 +40,13 @@
 ##'
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
-json_validator <- function(schema, engine = "imjv", reference = NULL) {
+json_validator <- function(schema, engine = "imjv", reference = NULL,
+                           strict = FALSE) {
   v8 <- env$ct
   schema <- read_schema(schema, v8)
   switch(engine,
          imjv = json_validator_imjv(schema, v8, reference),
-         ajv = json_validator_ajv(schema, v8, reference),
+         ajv = json_validator_ajv(schema, v8, reference, strict),
          stop(sprintf("Unknown engine '%s'", engine)))
 }
 
@@ -70,12 +78,19 @@ json_validator <- function(schema, engine = "imjv", reference = NULL) {
 ##'   but for now this must be the name of an element within
 ##'   \code{json}.  See the examples for more details.
 ##'
+##' @param strict Set whether the schema should be parsed strictly or not.
+##'   If in strict mode schemas will error to "prevent any unexpected
+##'   behaviours or silently ignored mistakes in user schema". For example
+##'   it will error if encounters unknown formats or unknown keywords. See
+##'   https://ajv.js.org/strict-mode.html for details. Only available in
+##'   \code{engine = 'ajv'}.
+##'
 ##' @export
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
                           error = FALSE, engine = "imjv", reference = NULL,
-                          query = NULL) {
-  tmp <- json_validator(schema, engine, reference = reference)
+                          query = NULL, strict = FALSE) {
+  tmp <- json_validator(schema, engine, reference = reference, strict = strict)
   tmp(json, verbose, greedy, error, query)
 }
 
@@ -119,7 +134,7 @@ json_validator_imjv <- function(schema, v8, reference) {
 }
 
 
-json_validator_ajv <- function(schema, v8, reference) {
+json_validator_ajv <- function(schema, v8, reference, strict) {
   name <- random_id()
   meta_schema_version <- schema$meta_schema_version %||% "draft-07"
 
@@ -130,8 +145,8 @@ json_validator_ajv <- function(schema, v8, reference) {
     schema$filename <- V8::JS("null")
   }
   dependencies <- V8::JS(schema$dependencies %||% "null")
-  v8$call("ajv_create", name, meta_schema_version, V8::JS(schema$schema),
-          schema$filename, dependencies, reference)
+  v8$call("ajv_create", name, meta_schema_version, strict,
+          V8::JS(schema$schema), schema$filename, dependencies, reference)
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
                   query = NULL) {
