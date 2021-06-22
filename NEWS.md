@@ -1,7 +1,7 @@
 ## jsonvalidate 1.3.0
 
 * Upgrade to ajv version 8.5.0
-* Add arg `strict` to `json_validate` and `json_validator` to allow evaluating schema in strict mode for ajv only. This off `FALSE` by default to use permissive behaviour detailed in JSON schema
+* Add arg `strict` to `json_validate` and `json_validator` to allow evaluating schema in strict mode for ajv only. This off (`FALSE`) by default to use permissive behaviour detailed in JSON schema
 * Use ajv as default validation engine
 
 ## jsonvalidate 1.2.3
