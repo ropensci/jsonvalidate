@@ -1,6 +1,7 @@
 global.Ajv = require('ajv');
 global.AjvSchema4 = require('ajv-draft-04');
 global.AjvSchema6 = require('ajv/dist/refs/json-schema-draft-06.json');
+global.addFormats = require('ajv-formats');
 
 global.imjv = require('is-my-json-valid');
 
@@ -32,6 +33,7 @@ global.ajv_create_object = function(meta_schema_version) {
         if (meta_schema_version === "draft-06") {
             ret.addMetaSchema(AjvSchema6);
         }
+        addFormats(ret);
         return ret;
     }
 }

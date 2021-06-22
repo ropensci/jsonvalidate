@@ -479,3 +479,35 @@ test_that("Parent schema with URL ID works", {
   expect_false(v("{}"))
   expect_true(v('{"hello": {"name": "a name", "another_prop": 2}}'))
 })
+
+test_that("format keyword works", {
+  schema <- str <- '{
+  "type": "object",
+  "required": ["date"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}'
+  v <- json_validator(str, "ajv")
+  expect_false(v("{'date': '123'}"))
+  expect_true(v("{'date': '2018-11-13T20:20:39+00:00'}"))
+})
+
+test_that("unknown format type throws an error", {
+  schema <- str <- '{
+  "type": "object",
+  "required": ["date"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "test"
+    }
+  }
+}'
+  expect_error(json_validator(str, "ajv"),
+               paste0('Error: unknown format "test" ignored in schema at ',
+                      'path "#/properties/date"'))
+})
