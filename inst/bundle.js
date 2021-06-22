@@ -20,7 +20,7 @@ global.ajv_create_object = function(meta_schema_version, strict) {
         // otherwise they seem to be not ignored (e.g., a schema that
         // has the 'const' keyword will check it, even though that
         // keyword is not part of draft-04)
-        return new AjvSchema4(opts)
+        var ret = new AjvSchema4(opts)
             .removeKeyword('propertyNames')
             .removeKeyword('contains')
             .removeKeyword('const')
@@ -32,9 +32,9 @@ global.ajv_create_object = function(meta_schema_version, strict) {
         if (meta_schema_version === "draft-06") {
             ret.addMetaSchema(AjvSchema6);
         }
-        addFormats(ret);
-        return ret;
     }
+    addFormats(ret);
+    return ret;
 }
 
 // TODO: we can push greedy into here
