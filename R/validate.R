@@ -181,6 +181,10 @@ validation_result <- function(res, error, verbose) {
       stop(validation_error(res))
     }
     if (verbose) {
+      ## In ajv version < 8 errors had dataPath property. This has
+      ## been renamed to instancePath in v8 +. Keep dataPath for
+      ## backwards compatibility to support dccvalidator
+      res$errors$dataPath <- res$errors$instancePath
       attr(success, "errors") <- res$errors
     }
   }
