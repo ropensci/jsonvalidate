@@ -216,8 +216,9 @@ test_that("can't use new schema versions with imjv", {
       }
     }
   }"
+  schema <- read_schema(schema, env$ct)
   expect_error(
-    json_validator(schema, engine = "imjv"),
+    json_validator_imjv(schema, env$ct, NULL),
     "meta schema version 'draft-07' is only supported with engine 'ajv'")
 })
 
@@ -552,4 +553,20 @@ test_that("json_validate can be run in strict mode", {
   expect_error(
     json_validate("{'a': 'foo'}", schema, engine = "ajv", strict = TRUE),
     'Error: strict mode: unknown keyword: "reference"')
+})
+
+test_that("json_validator falls back to ajv if version > draft-04", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-07/schema#',
+    'type': 'object',
+    'properties': {
+      'a': {
+        'const': 'foo'
+      }
+    }
+  }"
+  msg <- capture_messages(v <- json_validator(schema))
+  expect_true(v("{'a': 'foo'}"))
+  expect_equal(msg, paste0("Trying to use schema draft-07, imjv only supports ",
+                           "draft-04. Falling back to ajv engine.\n"))
 })

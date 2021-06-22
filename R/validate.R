@@ -40,10 +40,18 @@
 ##'
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
-json_validator <- function(schema, engine = "ajv", reference = NULL,
+json_validator <- function(schema, engine = "imjv", reference = NULL,
                            strict = FALSE) {
   v8 <- env$ct
   schema <- read_schema(schema, v8)
+  not_04 <- !is.null(schema$meta_schema_version) &&
+    !identical(schema$meta_schema_version, "draft-04")
+  if (not_04 && identical(engine, "imjv")) {
+    message(sprintf(paste0("Trying to use schema %s, imjv only supports ",
+                           "draft-04. Falling back to ajv engine."),
+                    schema$meta_schema_version))
+    engine <- "ajv"
+  }
   switch(engine,
          imjv = json_validator_imjv(schema, v8, reference),
          ajv = json_validator_ajv(schema, v8, reference, strict),
@@ -78,17 +86,10 @@ json_validator <- function(schema, engine = "ajv", reference = NULL,
 ##'   but for now this must be the name of an element within
 ##'   \code{json}.  See the examples for more details.
 ##'
-##' @param strict Set whether the schema should be parsed strictly or not.
-##'   If in strict mode schemas will error to "prevent any unexpected
-##'   behaviours or silently ignored mistakes in user schema". For example
-##'   it will error if encounters unknown formats or unknown keywords. See
-##'   https://ajv.js.org/strict-mode.html for details. Only has an effect when
-##'   \code{engine = 'ajv'}.
-##'
 ##' @export
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
-                          error = FALSE, engine = "ajv", reference = NULL,
+                          error = FALSE, engine = "imjv", reference = NULL,
                           query = NULL, strict = FALSE) {
   validator <- json_validator(schema, engine, reference = reference,
                               strict = strict)

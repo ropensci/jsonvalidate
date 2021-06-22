@@ -4,7 +4,7 @@
 \alias{json_validator}
 \title{Create a json validator}
 \usage{
-json_validator(schema, engine = "ajv", reference = NULL, strict = FALSE)
+json_validator(schema, engine = "imjv", reference = NULL, strict = FALSE)
 }
 \arguments{
 \item{schema}{Contents of the json schema, or a filename
