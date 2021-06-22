@@ -55,7 +55,7 @@ but for now this must be the name of an element within
 If in strict mode schemas will error to "prevent any unexpected
 behaviours or silently ignored mistakes in user schema". For example
 it will error if encounters unknown formats or unknown keywords. See
-https://ajv.js.org/strict-mode.html for details. Only available in
+https://ajv.js.org/strict-mode.html for details. Only has an effect when
 \code{engine = 'ajv'}.}
 }
 \description{
