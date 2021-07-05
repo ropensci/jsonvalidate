@@ -23,7 +23,8 @@ Suggests:
     knitr,
     jsonlite,
     rmarkdown,
-    testthat
+    testthat,
+    withr
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 Encoding: UTF-8

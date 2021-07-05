@@ -174,6 +174,7 @@ test_that("can't use subschema reference with imjv", {
 })
 
 test_that("can't use nested schemas with imjv", {
+  testthat::skip_if_not_installed("withr")
   parent <- c(
     '{',
     '    "type": "object",',
@@ -194,9 +195,14 @@ test_that("can't use nested schemas with imjv", {
   writeLines(parent, file.path(path, "parent.json"))
   writeLines(child, file.path(path, "child.json"))
 
-  expect_error(
-    json_validator(file.path(path, "parent.json"), engine = "imjv"),
-    "Schema references are only supported with engine 'ajv'")
+  withr::with_options(
+    list(jsonvalidate.no_note_imjv = FALSE),
+    expect_message(
+      v <- json_validator(file.path(path, "parent.json"), engine = "imjv"),
+      "Schema references are only supported with engine 'ajv'"))
+  ## We incorrectly don't find this invalid, because we never read the
+  ## child schema; the user should have used ajv!
+  expect_true(v('{"hello": 1}'))
 })
 
 
@@ -207,6 +213,7 @@ test_that("can't use invalid engines", {
 
 
 test_that("can't use new schema versions with imjv", {
+  testthat::skip_if_not_installed("withr")
   schema <- "{
     '$schema': 'http://json-schema.org/draft-07/schema#',
     'type': 'object',
@@ -217,9 +224,14 @@ test_that("can't use new schema versions with imjv", {
     }
   }"
   schema <- read_schema(schema, env$ct)
-  expect_error(
-    json_validator_imjv(schema, env$ct, NULL),
-    "meta schema version 'draft-07' is only supported with engine 'ajv'")
+  withr::with_options(
+    list(jsonvalidate.no_note_imjv = FALSE),
+    expect_message(
+      v <- json_validator_imjv(schema, env$ct, NULL),
+      "meta schema version other than 'draft-04' is only supported with"))
+  ## We incorrectly don't find this invalid, because imjv does not
+  ## understand the const keyword.
+  expect_true(v('{"a": "bar"}'))
 })
 
 
@@ -529,8 +541,11 @@ test_that("unknown format type throws an error if in strict mode", {
                paste0('Error: unknown format "test" ignored in schema at ',
                       'path "#/properties/date"'))
 
-  ## Warnings printed in non-strict mode
-  msg <- capture_warnings(v <- json_validator(str, "ajv", strict = FALSE))
+  ## Warnings printed in non-strict mode; these include some annoying
+  ## newlines from the V8 engine, so using capture.output to stop
+  ## these messing up testthat output
+  capture.output(
+    msg <- capture_warnings(v <- json_validator(str, "ajv", strict = FALSE)))
   expect_equal(msg[1], paste0('unknown format "test" ignored in ',
                               'schema at path "#/properties/date"'))
   expect_true(v("{'date': '123'}"))
@@ -555,21 +570,6 @@ test_that("json_validate can be run in strict mode", {
     'Error: strict mode: unknown keyword: "reference"')
 })
 
-test_that("json_validator falls back to ajv if version > draft-04", {
-  schema <- "{
-    '$schema': 'http://json-schema.org/draft-07/schema#',
-    'type': 'object',
-    'properties': {
-      'a': {
-        'const': 'foo'
-      }
-    }
-  }"
-  msg <- capture_messages(v <- json_validator(schema))
-  expect_true(v("{'a': 'foo'}"))
-  expect_equal(msg, paste0("Trying to use schema draft-07, imjv only supports ",
-                           "draft-04. Falling back to ajv engine.\n"))
-})
 
 test_that("validation works with 2019-09 schema version", {
   schema <- "{
@@ -642,4 +642,21 @@ test_that("validation works with 2020-12 schema version", {
 
   expect_true(json_validate("{'enabled': true}", schema, engine = "ajv"))
   expect_false(json_validate("{'enabled': 'test'}", schema, engine = "ajv"))
+})
+
+
+test_that("ajv requires a valid meta schema version", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-99/schema#',
+    'type': 'object',
+    'properties': {
+      'a': {
+        'const': 'foo'
+      }
+    }
+  }"
+
+  expect_error(
+    json_validator(schema, engine = "ajv"),
+    "Unknown meta schema version 'draft-99'")
 })

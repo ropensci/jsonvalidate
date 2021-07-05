@@ -60,3 +60,10 @@ set_names <- function(x, nms) {
   names(x) <- nms
   x
 }
+
+
+note_imjv <- function(msg) {
+  if (!isTRUE(getOption("jsonvalidate.no_note_imjv", FALSE))) {
+    message(msg)
+  }
+}
