@@ -73,8 +73,8 @@
 ##'
 ##' The support is currently quite limited - it will not (yet) read
 ##'   sub-child schemas relative to child schema `$id` url, and
-##'   does not suppoort reading from URLs (only local files are
-##'   supoported).
+##'   does not support reading from URLs (only local files are
+##'   supported).
 ##'
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
