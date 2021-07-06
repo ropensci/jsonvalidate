@@ -6,9 +6,6 @@
 ## jsonvalidate 1.2.3
 
 * Schemas can use references to other files with JSON pointers i.e. schemas can reference parts of other files e.g. `definitions.json#/definitions/hello`
-
-## jsonvalidate 1.?.?
-
 * JSON can be validated against a subschema (#18, #19, @AliciaSchep)
 * Validation with `error = TRUE` now returns `TRUE` (not `NULL)` on success
 * Schemas can span multiple files, being included via `"$ref": "filename.json"` - supported with the ajv engine only (#20, #21, @r-ash).
