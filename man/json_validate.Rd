@@ -43,25 +43,25 @@ sub-schema instead of the full schema passed in. For example
 if the schema has a 'definitions' list including a definition for a
 'Hello' object, one could pass "#/definitions/Hello" and the validator
 would check that the json is a valid "Hello" object. Only available if
-\code{engine = 'ajv'}.}
+\code{engine = "ajv"}.}
 
 \item{query}{A string indicating a component of the data to
 validate the schema against.  Eventually this may support full
-\href{https://www.npmjs.com/package/jsonpath}{jsonpath} syntax,
-but for now this must be the name of an element within
-\code{json}.  See the examples for more details.}
+\href{https://www.npmjs.com/package/jsonpath}{jsonpath} syntax, but
+for now this must be the name of an element within \code{json}.  See
+the examples for more details.}
 
 \item{strict}{Set whether the schema should be parsed strictly or not.
 If in strict mode schemas will error to "prevent any unexpected
 behaviours or silently ignored mistakes in user schema". For example
 it will error if encounters unknown formats or unknown keywords. See
 https://ajv.js.org/strict-mode.html for details. Only available in
-\code{engine = 'ajv'}.}
+\code{engine = "ajv"}.}
 }
 \description{
 Validate a single json against a schema.  This is a convenience
 wrapper around \code{json_validator(schema)(json)}.  See
-\code{\link{json_validator}} for further details.
+\code{\link[=json_validator]{json_validator()}} for further details.
 }
 \examples{
 # A simple schema example:
