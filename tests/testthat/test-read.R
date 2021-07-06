@@ -77,22 +77,6 @@ test_that("can't read external schemas", {
 })
 
 
-test_that("invalid schema version", {
-  schema <- "{
-    '$schema': 'http://json-schema.org/draft-99/schema#',
-    'type': 'object',
-    'properties': {
-      'a': {
-        'const': 'foo'
-      }
-    }
-  }"
-  expect_error(
-    read_schema(schema, env$ct),
-    "Unknown meta schema version 'draft-99'")
-})
-
-
 test_that("Conflicting schema versions", {
   a <- c(
     '{',

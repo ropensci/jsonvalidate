@@ -114,12 +114,6 @@ read_meta_schema_version <- function(schema, v8) {
                   "(draft-\\d{2}|draft/\\d{4}-\\d{2})/schema#*$")
   version <- gsub(regex, "\\1", meta_schema)
 
-  versions_legal <- c("draft-04", "draft-06", "draft-07", "draft/2019-09",
-                      "draft/2020-12")
-  if (!(version %in% versions_legal)) {
-    stop(sprintf("Unknown meta schema version '%s'", version))
-  }
-
   version
 }
 

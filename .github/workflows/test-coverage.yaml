@@ -7,6 +7,7 @@ on:
     branches:
       - main
       - master
+      - mrc-2476
 
 name: test-coverage
 
