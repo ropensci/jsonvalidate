@@ -8,7 +8,7 @@
 <!-- badges: end -->
 
 
-Validate JSON against a schema using [`is-my-json-valid`](https://github.com/mafintosh/is-my-json-valid) or [`ajv`](https://github.com/epoberezkin/ajv).  This package is a thin wrapper around these node libraries, using the [V8](https://cran.r-project.org/package=V8) package.
+Validate JSON against a schema using [`is-my-json-valid`](https://github.com/mafintosh/is-my-json-valid) or [`ajv`](https://github.com/ajv-validator/ajv).  This package is a thin wrapper around these node libraries, using the [V8](https://cran.r-project.org/package=V8) package.
 
 ## Usage
 
@@ -48,4 +48,4 @@ MIT + file LICENSE © [Rich FitzJohn](https://github.com/richfitz).
 
  Please note that this project is released with a [Contributor Code of Conduct](https://github.com/ropensci/jsonvalidate/blob/master/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
-[![ropensci_footer](http://ropensci.org/public_images/github_footer.png)](http://ropensci.org)
+[![ropensci_footer](https://ropensci.org//public_images/github_footer.png)](https://ropensci.org/)
