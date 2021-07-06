@@ -1,18 +1,21 @@
 test_that("can't read empty input", {
-  expect_error(read_schema(NULL, env$ct),
+  ct <- jsonvalidate_js()
+  expect_error(read_schema(NULL, ct),
                "zero length input")
-  expect_error(read_schema(character(0), env$ct),
+  expect_error(read_schema(character(0), ct),
                "zero length input")
 })
 
 
 test_that("must read character input", {
-  expect_error(read_schema(1, env$ct),
+  ct <- jsonvalidate_js()
+  expect_error(read_schema(1, ct),
                "Expected a character vector")
 })
 
 
 test_that("sensible error on missing files", {
+  ct <- jsonvalidate_js()
   a <- c(
     '{',
     '"$ref": "b.json"',
@@ -30,11 +33,11 @@ test_that("sensible error on missing files", {
   writeLines(a, file.path(path, "a.json"))
   writeLines(b, file.path(path, "b.json"))
   expect_error(
-    read_schema(file.path(path, "b.json"), env$ct),
+    read_schema(file.path(path, "b.json"), ct),
     "While reading 'b.json' > 'c.json'\nDid not find schema file 'c.json'",
     class = "jsonvalidate_read_error")
   expect_error(
-    read_schema(file.path(path, "a.json"), env$ct),
+    read_schema(file.path(path, "a.json"), ct),
     paste0("While reading 'a.json' > 'b.json' > 'c.json'\n",
            "Did not find schema file 'c.json'"),
     class = "jsonvalidate_read_error")
@@ -42,6 +45,7 @@ test_that("sensible error on missing files", {
 
 
 test_that("Read recursive schema", {
+  ct <- jsonvalidate_js()
   sexpression <- c(
     '{',
     '  "oneOf": [',
@@ -54,7 +58,7 @@ test_that("Read recursive schema", {
   dir.create(path)
   p <- file.path(path, "sexpression.json")
   writeLines(sexpression, p)
-  dat <- read_schema(p, env$ct)
+  dat <- read_schema(p, ct)
   expect_equal(length(dat$dependencies), 1)
   expect_equal(jsonlite::fromJSON(dat$dependencies)$id, "sexpression.json")
 
@@ -66,16 +70,18 @@ test_that("Read recursive schema", {
 
 
 test_that("can't read external schemas", {
+  ct <- jsonvalidate_js()
   a <- c(
     '{',
     '"$ref": "https://example.com/schema.json"',
     '}')
-  expect_error(read_schema(a, env$ct),
+  expect_error(read_schema(a, ct),
                "Don't yet support protocol-based sub schemas")
 })
 
 
 test_that("Conflicting schema versions", {
+  ct <- jsonvalidate_js()
   a <- c(
     '{',
     '  "$schema": "http://json-schema.org/draft-07/schema#",',
@@ -91,18 +97,19 @@ test_that("Conflicting schema versions", {
   writeLines(a, file.path(path, "a.json"))
   writeLines(b, file.path(path, "b.json"))
   expect_error(
-    read_schema(file.path(path, "a.json"), env$ct),
+    read_schema(file.path(path, "a.json"), ct),
     "Conflicting subschema versions used:\n  - draft-04: b.json")
   expect_error(
-    with_dir(path, read_schema(a, env$ct)),
+    with_dir(path, read_schema(a, ct)),
     "Conflicting subschema versions used:\n.+- draft-07: \\(input string\\)")
   writeLines(sub("-04", "-07", b), file.path(path, "b.json"))
-  x <- read_schema(file.path(path, "a.json"), env$ct)
+  x <- read_schema(file.path(path, "a.json"), ct)
   expect_equal(x$meta_schema_version, "draft-07")
 })
 
 
 test_that("Sensible reporting on syntax error", {
+  ct <- jsonvalidate_js()
   parent <- c(
     '{',
     '    "type": "object",',
@@ -124,7 +131,7 @@ test_that("Sensible reporting on syntax error", {
   writeLines(parent, file.path(path, "parent.json"))
   writeLines(child, file.path(path, "child.json"))
   expect_error(
-    read_schema(file.path(path, "parent.json"), env$ct),
+    read_schema(file.path(path, "parent.json"), ct),
     "While reading 'parent.json' > 'child.json'",
     class = "jsonvalidate_read_error")
 })
@@ -151,6 +158,7 @@ test_that("sensible error if reading missing schema", {
 })
 
 test_that("can reference subsets of other schema", {
+  ct <- jsonvalidate_js()
   a <- c(
     '{',
     '"$ref": "b.json#/definitions/b"',
@@ -167,7 +175,7 @@ test_that("can reference subsets of other schema", {
   dir.create(path)
   writeLines(a, file.path(path, "a.json"))
   writeLines(b, file.path(path, "b.json"))
-  schema <- read_schema(file.path(path, "a.json"), env$ct)
+  schema <- read_schema(file.path(path, "a.json"), ct)
   expect_equal(length(schema$dependencies), 1)
   expect_equal(jsonlite::fromJSON(schema$dependencies)$id, "b.json")
 })

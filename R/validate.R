@@ -80,7 +80,7 @@
 ##' @example man-roxygen/example-json_validator.R
 json_validator <- function(schema, engine = "imjv", reference = NULL,
                            strict = FALSE) {
-  v8 <- env$ct
+  v8 <- jsonvalidate_js()
   schema <- read_schema(schema, v8)
 
   switch(engine,
@@ -129,7 +129,6 @@ json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
 
 
 json_validator_imjv <- function(schema, v8, reference) {
-  name <- random_id()
   meta_schema_version <- schema$meta_schema_version %||% "draft-04"
 
   if (!is.null(reference)) {
@@ -154,7 +153,7 @@ json_validator_imjv <- function(schema, v8, reference) {
     note_imjv("Schema references are only supported with engine 'ajv'")
   }
 
-  v8$call("imjv_create", name, meta_schema_version, V8::JS(schema$schema))
+  v8$call("imjv_create", meta_schema_version, V8::JS(schema$schema))
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
                   query = NULL) {
@@ -164,19 +163,16 @@ json_validator_imjv <- function(schema, v8, reference) {
     if (error) {
       verbose <- TRUE
     }
-    res <- v8$call("imjv_call", name, V8::JS(get_string(json)),
+    res <- v8$call("imjv_call", V8::JS(get_string(json)),
                    verbose, greedy)
     validation_result(res, error, verbose)
   }
-
-  reg.finalizer(environment(ret), validator_delete("imjv", name, v8))
 
   ret
 }
 
 
 json_validator_ajv <- function(schema, v8, reference, strict) {
-  name <- random_id()
   meta_schema_version <- schema$meta_schema_version %||% "draft-07"
 
   versions_legal <- c("draft-04", "draft-06", "draft-07", "draft/2019-09",
@@ -192,29 +188,17 @@ json_validator_ajv <- function(schema, v8, reference, strict) {
     schema$filename <- V8::JS("null")
   }
   dependencies <- V8::JS(schema$dependencies %||% "null")
-  v8$call("ajv_create", name, meta_schema_version, strict,
+  v8$call("ajv_create", meta_schema_version, strict,
           V8::JS(schema$schema), schema$filename, dependencies, reference)
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
                   query = NULL) {
-    res <- v8$call("ajv_call", name, V8::JS(get_string(json)),
+    res <- v8$call("ajv_call", V8::JS(get_string(json)),
                    error || verbose, query_validate(query))
     validation_result(res, error, verbose)
   }
 
-  reg.finalizer(environment(ret), validator_delete("ajv", name, v8))
-
   ret
-}
-
-
-validator_delete <- function(type, name, v8) {
-  force(type)
-  force(name)
-  force(v8)
-  function(e) {
-    v8$call("validator_delete", type, name)
-  }
 }
 
 

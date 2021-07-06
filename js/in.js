@@ -7,9 +7,6 @@ global.addFormats = require('ajv-formats');
 
 global.imjv = require('is-my-json-valid');
 
-// Storage for validators so we can interact with them from R
-global.validators = {"imjv": {}, "ajv": {}};
-
 global.ajv_create_object = function(meta_schema_version, strict) {
     // Need to disable strict mode, otherwise we get warnings
     // about unknown schema entries in draft-04 (e.g., presence of
@@ -42,7 +39,7 @@ global.ajv_create_object = function(meta_schema_version, strict) {
 }
 
 // TODO: we can push greedy into here
-global.ajv_create = function(key, meta_schema_version, strict, schema,
+global.ajv_create = function(meta_schema_version, strict, schema,
                              filename, dependencies, reference) {
     var ret = ajv_create_object(meta_schema_version, strict);
 
@@ -62,7 +59,9 @@ global.ajv_create = function(key, meta_schema_version, strict, schema,
     } else {
         ret = ret.addSchema(drop_id(schema), filename).getSchema(reference);
     }
-    validators["ajv"][key] = ret;
+
+    // Save in the global scope so we can use this later from R
+    global.validator = ret;
 }
 
 global.drop_id = function(x) {
@@ -71,41 +70,29 @@ global.drop_id = function(x) {
     return x;
 }
 
-global.imjv_create = function(key, meta_schema_version, schema) {
+global.imjv_create = function(meta_schema_version, schema) {
     // https://github.com/mafintosh/is-my-json-valid/issues/160
     if (meta_schema_version != "draft-04") {
         throw new Error("Only draft-04 json schema is supported");
     }
-    var ret = imjv(schema);
-    validators["imjv"][key] = ret;
+    global.validator = imjv(schema);
 }
 
-global.ajv_call = function(key, value, errors, query) {
-    var validator = validators["ajv"][key];
+global.ajv_call = function(value, errors, query) {
     var success = validator(jsonpath_eval(value, query));
     var errors = (!success && errors ? validator.errors : null);
     return {"success": success, "errors": errors, "engine": "ajv"};
 }
 
-global.imjv_call = function(key, value, errors, greedy) {
-    var validator = validators["imjv"][key];
+global.imjv_call = function(value, errors, greedy) {
     var success = validator(value, {"greedy": greedy}, {"verbose": errors});
     var errors = (!success && errors ? validator.errors : null);
     return {"success": success, "errors": errors, "engine": "imjv"};
 }
 
-global.validator_delete = function(type, name) {
-    delete validators[type][name];
-}
-
 global.get_meta_schema_version = function(schema) {
     return schema.$schema;
 };
-
-global.validator_stats = function() {
-    return {"imjv": Object.keys(validators["imjv"]).length,
-            "ajv": Object.keys(validators["ajv"]).length};
-}
 
 global.find_reference = function(x) {
     deps = []
