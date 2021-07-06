@@ -1,3 +1,8 @@
+## jsonvalidate 1.3.0
+
+* Upgrade to ajv version 8.5.0
+* Add arg `strict` to `json_validate` and `json_validator` to allow evaluating schema in strict mode for ajv only. This is off (`FALSE`) by default to use permissive behaviour detailed in JSON schema
+
 ## jsonvalidate 1.2.3
 
 * Schemas can use references to other files with JSON pointers i.e. schemas can reference parts of other files e.g. `definitions.json#/definitions/hello`

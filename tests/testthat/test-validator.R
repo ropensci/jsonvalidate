@@ -15,20 +15,20 @@ test_that("is-my-json-valid", {
   }
 }"
 
-  v <- json_validator(str)
+  v <- json_validator(str, engine = "imjv")
   expect_false(v("{}"))
   expect_true(v("{hello: 'world'}"))
 
-  expect_false(json_validate("{}", str))
-  expect_true(json_validate("{hello: 'world'}", str))
+  expect_false(json_validate("{}", str, engine = "imjv"))
+  expect_true(json_validate("{hello: 'world'}", str, engine = "imjv"))
 
   f <- tempfile()
   writeLines(str, f)
-  v <- json_validator(f)
+  v <- json_validator(f, engine = "imjv")
   expect_false(v("{}"))
   expect_true(v("{hello: 'world'}"))
 
-  v <- json_validator("schema.json")
+  v <- json_validator("schema.json", engine = "imjv")
   expect_error(v("{}", error = TRUE),
                "data.hello: is required",
                class = "validation_error")
@@ -109,7 +109,7 @@ test_that("if/then/else keywords are supported in draft-07, not draft-04", {
     'type': 'object',
     'if': {
       'properties': {
-        'a': {'minimum': 1}
+        'a': {'type': 'number', 'minimum': 1}
       }
     },
     'then': {
@@ -174,6 +174,7 @@ test_that("can't use subschema reference with imjv", {
 })
 
 test_that("can't use nested schemas with imjv", {
+  testthat::skip_if_not_installed("withr")
   parent <- c(
     '{',
     '    "type": "object",',
@@ -194,9 +195,14 @@ test_that("can't use nested schemas with imjv", {
   writeLines(parent, file.path(path, "parent.json"))
   writeLines(child, file.path(path, "child.json"))
 
-  expect_error(
-    json_validator(file.path(path, "parent.json"), engine = "imjv"),
-    "Schema references are only supported with engine 'ajv'")
+  withr::with_options(
+    list(jsonvalidate.no_note_imjv = FALSE),
+    expect_message(
+      v <- json_validator(file.path(path, "parent.json"), engine = "imjv"),
+      "Schema references are only supported with engine 'ajv'"))
+  ## We incorrectly don't find this invalid, because we never read the
+  ## child schema; the user should have used ajv!
+  expect_true(v('{"hello": 1}'))
 })
 
 
@@ -207,6 +213,7 @@ test_that("can't use invalid engines", {
 
 
 test_that("can't use new schema versions with imjv", {
+  testthat::skip_if_not_installed("withr")
   schema <- "{
     '$schema': 'http://json-schema.org/draft-07/schema#',
     'type': 'object',
@@ -216,9 +223,15 @@ test_that("can't use new schema versions with imjv", {
       }
     }
   }"
-  expect_error(
-    json_validator(schema, engine = "imjv"),
-    "meta schema version 'draft-07' is only supported with engine 'ajv'")
+  schema <- read_schema(schema, env$ct)
+  withr::with_options(
+    list(jsonvalidate.no_note_imjv = FALSE),
+    expect_message(
+      v <- json_validator_imjv(schema, env$ct, NULL),
+      "meta schema version other than 'draft-04' is only supported with"))
+  ## We incorrectly don't find this invalid, because imjv does not
+  ## understand the const keyword.
+  expect_true(v('{"a": "bar"}'))
 })
 
 
@@ -410,7 +423,7 @@ test_that("Referencing definition in another file works", {
   expect_false(invalid)
   error <- attr(invalid, "errors", TRUE)
   expect_equal(error$schemaPath, "child.json#/definitions/greeting/type")
-  expect_equal(error$message, "should be string")
+  expect_equal(error$message, "must be string")
 })
 
 
@@ -478,4 +491,172 @@ test_that("Parent schema with URL ID works", {
   v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
   expect_false(v("{}"))
   expect_true(v('{"hello": {"name": "a name", "another_prop": 2}}'))
+})
+
+test_that("format keyword works", {
+  str <- '{
+  "type": "object",
+  "required": ["date"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}'
+  v <- json_validator(str, "ajv")
+  expect_false(v("{'date': '123'}"))
+  expect_true(v("{'date': '2018-11-13T20:20:39+00:00'}"))
+})
+
+test_that("format keyword works in draft-04", {
+  str <- '{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["date"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}'
+  v <- json_validator(str, "ajv", strict = TRUE)
+  expect_false(v("{'date': '123'}"))
+  expect_true(v("{'date': '2018-11-13T20:20:39+00:00'}"))
+})
+
+test_that("unknown format type throws an error if in strict mode", {
+  str <- '{
+  "type": "object",
+  "required": ["date"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "test"
+    }
+  }
+}'
+  expect_error(json_validator(str, "ajv", strict = TRUE),
+               paste0('Error: unknown format "test" ignored in schema at ',
+                      'path "#/properties/date"'))
+
+  ## Warnings printed in non-strict mode; these include some annoying
+  ## newlines from the V8 engine, so using capture.output to stop
+  ## these messing up testthat output
+  capture.output(
+    msg <- capture_warnings(v <- json_validator(str, "ajv", strict = FALSE)))
+  expect_equal(msg[1], paste0('unknown format "test" ignored in ',
+                              'schema at path "#/properties/date"'))
+  expect_true(v("{'date': '123'}"))
+})
+
+test_that("json_validate can be run in strict mode", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-04/schema#',
+    'type': 'object',
+    'properties': {
+      'a': {
+        'const': 'foo'
+      }
+    },
+    'reference': '1234'
+  }"
+
+  expect_true(json_validate("{'a': 'foo'}", schema, engine = "ajv"))
+
+  expect_error(
+    json_validate("{'a': 'foo'}", schema, engine = "ajv", strict = TRUE),
+    'Error: strict mode: unknown keyword: "reference"')
+})
+
+
+test_that("validation works with 2019-09 schema version", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-07/schema#',
+    '$defs': {
+      'toggle': {
+        '$id': '#toggle',
+        'type': [ 'boolean', 'null' ],
+        'default': null
+      }
+    },
+    'type': 'object',
+    'properties': {
+      'enabled': {
+        '$ref': '#toggle',
+        'default': true
+      }
+    }
+  }"
+
+  expect_true(json_validate("{'enabled': true}", schema, engine = "ajv"))
+  expect_false(json_validate("{'enabled': 'test'}", schema, engine = "ajv"))
+
+  ## Switch to draft/2019-09
+  schema <- gsub("http://json-schema.org/draft-07/schema#",
+                 "https://json-schema.org/draft/2019-09/schema#", schema)
+  ## draft/2019-09 doesn't allow #plain-name form of $id
+  expect_error(json_validator(schema, engine = "ajv"),
+               "Error: schema is invalid:")
+
+  schema <- "{
+    '$schema': 'https://json-schema.org/draft/2019-09/schema#',
+    '$defs': {
+      'toggle': {
+        '$anchor': 'toggle',
+        'type': [ 'boolean', 'null' ],
+        'default': null
+      }
+    },
+    'type': 'object',
+    'properties': {
+      'enabled': {
+        '$ref': '#toggle',
+        'default': true
+      }
+    }
+  }"
+  expect_true(json_validate("{'enabled': true}", schema, engine = "ajv"))
+  expect_false(json_validate("{'enabled': 'test'}", schema, engine = "ajv"))
+})
+
+test_that("validation works with 2020-12 schema version", {
+  schema <- "{
+    '$schema': 'https://json-schema.org/draft/2020-12/schema#',
+    '$defs': {
+      'toggle': {
+        '$anchor': 'toggle',
+        'type': [ 'boolean', 'null' ],
+        'default': null
+      }
+    },
+    'type': 'object',
+    'properties': {
+      'enabled': {
+        '$ref': '#toggle',
+        'default': true
+      }
+    }
+  }"
+
+  expect_true(json_validate("{'enabled': true}", schema, engine = "ajv"))
+  expect_false(json_validate("{'enabled': 'test'}", schema, engine = "ajv"))
+})
+
+
+test_that("ajv requires a valid meta schema version", {
+  schema <- "{
+    '$schema': 'http://json-schema.org/draft-99/schema#',
+    'type': 'object',
+    'properties': {
+      'a': {
+        'const': 'foo'
+      }
+    }
+  }"
+
+  expect_error(
+    json_validator(schema, engine = "ajv"),
+    "Unknown meta schema version 'draft-99'")
 })

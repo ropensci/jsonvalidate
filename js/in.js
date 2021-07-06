@@ -1,40 +1,50 @@
 global.Ajv = require('ajv');
-global.AjvSchema4 = require('ajv/lib/refs/json-schema-draft-04.json');
-global.AjvSchema6 = require('ajv/lib/refs/json-schema-draft-06.json');
+global.AjvSchema4 = require('ajv-draft-04');
+global.AjvSchema6 = require('ajv/dist/refs/json-schema-draft-06.json');
+global.AjvSchema2019 = require('ajv/dist/2019')
+global.AjvSchema2020 = require('ajv/dist/2020')
+global.addFormats = require('ajv-formats');
 
 global.imjv = require('is-my-json-valid');
 
 // Storage for validators so we can interact with them from R
 global.validators = {"imjv": {}, "ajv": {}};
 
-global.ajv_create_object = function(meta_schema_version) {
+global.ajv_create_object = function(meta_schema_version, strict) {
+    // Need to disable strict mode, otherwise we get warnings
+    // about unknown schema entries in draft-04 (e.g., presence of
+    // const) and draft-07 (e.g. presence of "reference")
+    var opts = {allErrors: true, verbose: true, strict: strict};
     if (meta_schema_version === "draft-04") {
-        var opts = {meta: false,
-                    schemaId: 'id',
-                    allErrors: true,
-                    verbose: true};
-        return new Ajv(opts)
-            .addMetaSchema(AjvSchema4)
+        // Need to drop keywords present in later schema versions,
+        // otherwise they seem to be not ignored (e.g., a schema that
+        // has the 'const' keyword will check it, even though that
+        // keyword is not part of draft-04)
+        var ret = new AjvSchema4(opts)
             .removeKeyword('propertyNames')
             .removeKeyword('contains')
             .removeKeyword('const')
             .removeKeyword('if')
             .removeKeyword('then')
             .removeKeyword('else');
+    } else if (meta_schema_version === "draft/2019-09") {
+        var ret = new AjvSchema2019(opts);
+    } else if (meta_schema_version === "draft/2020-12") {
+        var ret = new AjvSchema2020(opts);
     } else {
-        var opts = {allErrors: true, verbose: true};
-        var ret = new Ajv({allErrors: true, verbose: true});
+        var ret = new Ajv(opts);
         if (meta_schema_version === "draft-06") {
             ret.addMetaSchema(AjvSchema6);
         }
-        return ret;
     }
+    addFormats(ret);
+    return ret;
 }
 
 // TODO: we can push greedy into here
-global.ajv_create = function(key, meta_schema_version, schema, filename,
-                             dependencies, reference) {
-    var ret = ajv_create_object(meta_schema_version);
+global.ajv_create = function(key, meta_schema_version, strict, schema,
+                             filename, dependencies, reference) {
+    var ret = ajv_create_object(meta_schema_version, strict);
 
     if (dependencies) {
         dependencies.forEach(

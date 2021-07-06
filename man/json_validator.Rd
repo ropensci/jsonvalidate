@@ -4,7 +4,7 @@
 \alias{json_validator}
 \title{Create a json validator}
 \usage{
-json_validator(schema, engine = "imjv", reference = NULL)
+json_validator(schema, engine = "imjv", reference = NULL, strict = FALSE)
 }
 \arguments{
 \item{schema}{Contents of the json schema, or a filename
@@ -21,10 +21,60 @@ if the schema has a 'definitions' list including a definition for a
 'Hello' object, one could pass "#/definitions/Hello" and the validator
 would check that the json is a valid "Hello" object. Only available if
 \code{engine = 'ajv'}.}
+
+\item{strict}{Set whether the schema should be parsed strictly or not.
+If in strict mode schemas will error to "prevent any unexpected
+behaviours or silently ignored mistakes in user schema". For example
+it will error if encounters unknown formats or unknown keywords. See
+https://ajv.js.org/strict-mode.html for details. Only available in
+\code{engine = 'ajv'}.}
 }
 \description{
 Create a validator that can validate multiple json files.
 }
+\section{Validation Engines}{
+
+
+We support two different json validation engines, \code{imjv}
+  ("is-my-json-valid") and \code{ajv} ("Another JSON
+  Validator"). \code{imjv} was the original validator included in
+  the package and remains the default for reasons of backward
+  compatibility. However, users are encouraged to migrate to
+  \code{ajv} as with it we support many more features, including
+  nested schemas that span multiple files, meta schema versions
+  later than draft-04, validating using a subschema, and
+  validating a subset of an input data object.
+
+If your schema uses these features we will print a message to
+  screen indicating that you should update. We do not use a
+  warning here as this will be disruptive to users. You can
+  disable the message by setting the option
+  \code{jsonvalidate.no_imjv_notice} to \code{TRUE}. Consider
+  using \code{withr::with_options} (or simply
+  \code{suppressMessages}) to scope this option if you want to
+  quieten it within code you do not control.
+
+Updating the engine should be simply a case of adding \code{engine
+  = "ajv"} to your \code{json_validator} or \code{json_validate}
+  calls, but you may see some issues when doing so.
+
+\itemize{
+\item Your json now fails validation: We've seen this where
+  schemas spanned several files and are silently ignored. By
+  including these, your data may now fail validation and you will
+  need to either fix the data or the schema.
+
+\item Your code depended on the exact payload returned by
+  \code{imjv}: If you are inspecting the error result and checking
+  numbers of errors, or even the columns used to describe the
+  errors, you will likely need to update your code to accommodate
+  the slightly different format of \code{ajv}
+
+\item Your schema is simply invalid: If you reference an invalid
+  metaschema for example, jsonvalidate will fail
+}
+}
+
 \section{Using multiple files}{
 
 

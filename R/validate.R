@@ -1,5 +1,46 @@
 ##' Create a validator that can validate multiple json files.
 ##'
+##' @section Validation Engines:
+##'
+##' We support two different json validation engines, \code{imjv}
+##'   ("is-my-json-valid") and \code{ajv} ("Another JSON
+##'   Validator"). \code{imjv} was the original validator included in
+##'   the package and remains the default for reasons of backward
+##'   compatibility. However, users are encouraged to migrate to
+##'   \code{ajv} as with it we support many more features, including
+##'   nested schemas that span multiple files, meta schema versions
+##'   later than draft-04, validating using a subschema, and
+##'   validating a subset of an input data object.
+##'
+##' If your schema uses these features we will print a message to
+##'   screen indicating that you should update. We do not use a
+##'   warning here as this will be disruptive to users. You can
+##'   disable the message by setting the option
+##'   \code{jsonvalidate.no_note_imjv} to \code{TRUE}. Consider
+##'   using \code{withr::with_options} (or simply
+##'   \code{suppressMessages}) to scope this option if you want to
+##'   quieten it within code you do not control.
+##'
+##' Updating the engine should be simply a case of adding \code{engine
+##'   = "ajv"} to your \code{json_validator} or \code{json_validate}
+##'   calls, but you may see some issues when doing so.
+##'
+##' \itemize{
+##' \item Your json now fails validation: We've seen this where
+##'   schemas spanned several files and are silently ignored. By
+##'   including these, your data may now fail validation and you will
+##'   need to either fix the data or the schema.
+##'
+##' \item Your code depended on the exact payload returned by
+##'   \code{imjv}: If you are inspecting the error result and checking
+##'   numbers of errors, or even the columns used to describe the
+##'   errors, you will likely need to update your code to accommodate
+##'   the slightly different format of \code{ajv}
+##'
+##' \item Your schema is simply invalid: If you reference an invalid
+##'   metaschema for example, jsonvalidate will fail
+##' }
+##'
 ##' @title Create a json validator
 ##'
 ##' @param schema Contents of the json schema, or a filename
@@ -15,6 +56,13 @@
 ##'   if the schema has a 'definitions' list including a definition for a
 ##'   'Hello' object, one could pass "#/definitions/Hello" and the validator
 ##'   would check that the json is a valid "Hello" object. Only available if
+##'   \code{engine = 'ajv'}.
+##'
+##' @param strict Set whether the schema should be parsed strictly or not.
+##'   If in strict mode schemas will error to "prevent any unexpected
+##'   behaviours or silently ignored mistakes in user schema". For example
+##'   it will error if encounters unknown formats or unknown keywords. See
+##'   https://ajv.js.org/strict-mode.html for details. Only available in
 ##'   \code{engine = 'ajv'}.
 ##'
 ##' @section Using multiple files:
@@ -33,12 +81,14 @@
 ##'
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
-json_validator <- function(schema, engine = "imjv", reference = NULL) {
+json_validator <- function(schema, engine = "imjv", reference = NULL,
+                           strict = FALSE) {
   v8 <- env$ct
   schema <- read_schema(schema, v8)
+
   switch(engine,
          imjv = json_validator_imjv(schema, v8, reference),
-         ajv = json_validator_ajv(schema, v8, reference),
+         ajv = json_validator_ajv(schema, v8, reference, strict),
          stop(sprintf("Unknown engine '%s'", engine)))
 }
 
@@ -74,9 +124,10 @@ json_validator <- function(schema, engine = "imjv", reference = NULL) {
 ##' @example man-roxygen/example-json_validate.R
 json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
                           error = FALSE, engine = "imjv", reference = NULL,
-                          query = NULL) {
-  tmp <- json_validator(schema, engine, reference = reference)
-  tmp(json, verbose, greedy, error, query)
+                          query = NULL, strict = FALSE) {
+  validator <- json_validator(schema, engine, reference = reference,
+                              strict = strict)
+  validator(json, verbose, greedy, error, query)
 }
 
 
@@ -85,17 +136,25 @@ json_validator_imjv <- function(schema, v8, reference) {
   meta_schema_version <- schema$meta_schema_version %||% "draft-04"
 
   if (!is.null(reference)) {
+    ## This one has to be an error; it has never worked and makes no
+    ## sense.
     stop("subschema validation only supported with engine 'ajv'")
   }
 
   if (meta_schema_version != "draft-04") {
-    stop(sprintf(
-      "meta schema version '%s' is only supported with engine 'ajv'",
-      meta_schema_version))
+    ## We detect the version, so let the user know they are not really
+    ## getting what they're asking for
+    note_imjv(paste(
+      "meta schema version other than 'draft-04' is only supported with",
+      sprintf("engine 'ajv' (requested: '%s')", meta_schema_version),
+      "- falling back to use 'draft-04'"))
+    meta_schema_version <- "draft-04"
   }
 
   if (length(schema$dependencies) > 0L) {
-    stop("Schema references are only supported with engine 'ajv'")
+    ## We've found references, but can't support them. Let the user
+    ## know.
+    note_imjv("Schema references are only supported with engine 'ajv'")
   }
 
   v8$call("imjv_create", name, meta_schema_version, V8::JS(schema$schema))
@@ -119,9 +178,15 @@ json_validator_imjv <- function(schema, v8, reference) {
 }
 
 
-json_validator_ajv <- function(schema, v8, reference) {
+json_validator_ajv <- function(schema, v8, reference, strict) {
   name <- random_id()
   meta_schema_version <- schema$meta_schema_version %||% "draft-07"
+
+  versions_legal <- c("draft-04", "draft-06", "draft-07", "draft/2019-09",
+                      "draft/2020-12")
+  if (!(meta_schema_version %in% versions_legal)) {
+    stop(sprintf("Unknown meta schema version '%s'", meta_schema_version))
+  }
 
   if (is.null(reference)) {
     reference <- V8::JS("null")
@@ -130,8 +195,8 @@ json_validator_ajv <- function(schema, v8, reference) {
     schema$filename <- V8::JS("null")
   }
   dependencies <- V8::JS(schema$dependencies %||% "null")
-  v8$call("ajv_create", name, meta_schema_version, V8::JS(schema$schema),
-          schema$filename, dependencies, reference)
+  v8$call("ajv_create", name, meta_schema_version, strict,
+          V8::JS(schema$schema), schema$filename, dependencies, reference)
 
   ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
                   query = NULL) {
@@ -164,6 +229,10 @@ validation_result <- function(res, error, verbose) {
       stop(validation_error(res))
     }
     if (verbose) {
+      ## In ajv version < 8 errors had dataPath property. This has
+      ## been renamed to instancePath in v8 +. Keep dataPath for
+      ## backwards compatibility to support dccvalidator
+      res$errors$dataPath <- res$errors$instancePath
       attr(success, "errors") <- res$errors
     }
   }
@@ -177,7 +246,7 @@ validation_error <- function(res) {
   n <- nrow(errors)
   if (res$engine == "ajv") {
     detail <- paste(sprintf("\t- %s (%s): %s",
-                            errors$dataPath,
+                            errors$instancePath,
                             errors$schemaPath,
                             errors$message),
                     collapse = "\n")
