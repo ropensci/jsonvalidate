@@ -220,26 +220,16 @@ test_that("can't use new schema versions with imjv", {
       }
     }
   }"
-  schema <- read_schema(schema, env$ct)
+  ct <- jsonvalidate_js()
+  schema <- read_schema(schema, ct)
   withr::with_options(
     list(jsonvalidate.no_note_imjv = FALSE),
     expect_message(
-      v <- json_validator_imjv(schema, env$ct, NULL),
+      v <- json_validator_imjv(schema, ct, NULL),
       "meta schema version other than 'draft-04' is only supported with"))
   ## We incorrectly don't find this invalid, because imjv does not
   ## understand the const keyword.
   expect_true(v('{"a": "bar"}'))
-})
-
-
-test_that("package support", {
-  res <- prepare_js()
-  expect_s3_class(res, "V8")
-  expect_setequal(names(res$get("validators")),
-                  c("imjv", "ajv"))
-  s <- res$call("validator_stats")
-  expect_equal(s$imjv, 0)
-  expect_equal(s$ajv, 0)
 })
 
 
@@ -384,7 +374,8 @@ test_that("stray null values in a schema are ok", {
       }
     }
   }'
-  expect_error(read_schema(schema, env$ct), NA)
+  ct <- jsonvalidate_js()
+  expect_error(read_schema(schema, ct), NA)
 })
 
 
