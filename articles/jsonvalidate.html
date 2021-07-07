@@ -76,7 +76,7 @@
       <h1 data-toc-skip>Introduction to jsonvalidate</h1>
                         <h4 class="author">Rich FitzJohn</h4>
             
-            <h4 class="date">2021-07-06</h4>
+            <h4 class="date">2021-07-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ropensci/jsonvalidate/blob/master/vignettes/jsonvalidate.Rmd"><code>vignettes/jsonvalidate.Rmd</code></a></small>
       <div class="hidden name"><code>jsonvalidate.Rmd</code></div>
@@ -88,7 +88,7 @@
 <p>This package wraps <a href="https://github.com/mafintosh/is-my-json-valid">is-my-json-valid</a> using <a href="https://cran.r-project.org/package=V8">V8</a> to do JSON schema validation in R.</p>
 <p>You need a JSON schema file; see <a href="http://json-schema.org">json-schema.org</a> for details on writing these. Often someone else has done the hard work of writing one for you, and you can just check that the JSON you are producing or consuming conforms to the schema.</p>
 <p>The examples below come from the <a href="http://json-schema.org/learn/getting-started-step-by-step.html">JSON schema website</a></p>
-<p>They describe a JSON based product catalog, where each product has an id, a name, a price, and an optional set of tags. A JSON representation of a product is:</p>
+<p>They describe a JSON based product catalogue, where each product has an id, a name, a price, and an optional set of tags. A JSON representation of a product is:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">{</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a>    <span class="dt">"id"</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a>    <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"A green door"</span><span class="fu">,</span></span>

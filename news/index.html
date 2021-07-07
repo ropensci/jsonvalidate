@@ -131,13 +131,17 @@
 <ul>
 <li>Schemas can use references to other files with JSON pointers i.e. schemas can reference parts of other files e.g. <code>definitions.json#/definitions/hello</code>
 </li>
+<li>JSON can be validated against a subschema (<a href='https://github.com/ropensci/jsonvalidate/issues/18'>#18</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/19'>#19</a>, <a href='https://github.com/AliciaSchep'>@AliciaSchep</a>)</li>
+<li>Validation with <code>error = TRUE</code> now returns <code>TRUE</code> (not <code>NULL)</code> on success</li>
+<li>Schemas can span multiple files, being included via <code>"$ref": "filename.json"</code> - supported with the ajv engine only (<a href='https://github.com/ropensci/jsonvalidate/issues/20'>#20</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/21'>#21</a>, <a href='https://github.com/r-ash'>@r-ash</a>).</li>
+<li>Validation can be performed against a fraction of the input data (<a href='https://github.com/ropensci/jsonvalidate/issues/25'>#25</a>)</li>
 </ul>
 </div>
     <div id="jsonvalidate-110" class="section level2">
 <h2 class="hasAnchor">
 <a href="#jsonvalidate-110" class="anchor"></a>jsonvalidate 1.1.0</h2>
 <ul>
-<li>Add support for JSON schema draft 06 and 07 using the <a href="https://github.com/epoberezkin/ajv"><code>ajv</code></a> node library. This must be used by passing the <code>engine</code> argument to <code>json_validate</code> and <code>json_validator</code> at present (<a href='https://github.com/ropensci/jsonvalidate/issues/2'>#2</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/11'>#11</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/15'>#15</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/16'>#16</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/17'>#17</a>, <a href='https://github.com/karawoo'>@karawoo</a> &amp; <a href='https://github.com/ijlyttle'>@ijlyttle</a>)</li>
+<li>Add support for JSON schema draft 06 and 07 using the <a href="https://github.com/ajv-validator/ajv"><code>ajv</code></a> node library. This must be used by passing the <code>engine</code> argument to <code>json_validate</code> and <code>json_validator</code> at present (<a href='https://github.com/ropensci/jsonvalidate/issues/2'>#2</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/11'>#11</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/15'>#15</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/16'>#16</a>, <a href='https://github.com/ropensci/jsonvalidate/issues/17'>#17</a>, <a href='https://github.com/karawoo'>@karawoo</a> &amp; <a href='https://github.com/ijlyttle'>@ijlyttle</a>)</li>
 </ul>
 </div>
     <div id="jsonvalidate-101" class="section level2">
