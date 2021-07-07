@@ -2,12 +2,12 @@
 ##'
 ##' @section Validation Engines:
 ##'
-##' We support two different json validation engines, \code{imjv}
-##'   ("is-my-json-valid") and \code{ajv} ("Another JSON
-##'   Validator"). \code{imjv} was the original validator included in
+##' We support two different json validation engines, `imjv`
+##'   ("is-my-json-valid") and `ajv` ("Another JSON
+##'   Validator"). `imjv` was the original validator included in
 ##'   the package and remains the default for reasons of backward
 ##'   compatibility. However, users are encouraged to migrate to
-##'   \code{ajv} as with it we support many more features, including
+##'   `ajv` as with it we support many more features, including
 ##'   nested schemas that span multiple files, meta schema versions
 ##'   later than draft-04, validating using a subschema, and
 ##'   validating a subset of an input data object.
@@ -16,30 +16,28 @@
 ##'   screen indicating that you should update. We do not use a
 ##'   warning here as this will be disruptive to users. You can
 ##'   disable the message by setting the option
-##'   \code{jsonvalidate.no_note_imjv} to \code{TRUE}. Consider
-##'   using \code{withr::with_options} (or simply
-##'   \code{suppressMessages}) to scope this option if you want to
+##'   `jsonvalidate.no_note_imjv` to `TRUE`. Consider
+##'   using [withr::with_options()] (or simply
+##'   [suppressMessages()]) to scope this option if you want to
 ##'   quieten it within code you do not control.
 ##'
-##' Updating the engine should be simply a case of adding \code{engine
-##'   = "ajv"} to your \code{json_validator} or \code{json_validate}
+##' Updating the engine should be simply a case of adding `{engine
+##'   = "ajv"` to your `json_validator` or `json_validate`
 ##'   calls, but you may see some issues when doing so.
 ##'
-##' \itemize{
-##' \item Your json now fails validation: We've seen this where
-##'   schemas spanned several files and are silently ignored. By
-##'   including these, your data may now fail validation and you will
-##'   need to either fix the data or the schema.
+##' * Your json now fails validation: We've seen this where schemas
+##'   spanned several files and are silently ignored. By including
+##'   these, your data may now fail validation and you will need to
+##'   either fix the data or the schema.
 ##'
-##' \item Your code depended on the exact payload returned by
-##'   \code{imjv}: If you are inspecting the error result and checking
-##'   numbers of errors, or even the columns used to describe the
-##'   errors, you will likely need to update your code to accommodate
-##'   the slightly different format of \code{ajv}
+##' * Your code depended on the exact payload returned by `imjv`: If
+##'   you are inspecting the error result and checking numbers of
+##'   errors, or even the columns used to describe the errors, you
+##'   will likely need to update your code to accommodate the slightly
+##'   different format of `ajv`
 ##'
-##' \item Your schema is simply invalid: If you reference an invalid
+##' * Your schema is simply invalid: If you reference an invalid
 ##'   metaschema for example, jsonvalidate will fail
-##' }
 ##'
 ##' @title Create a json validator
 ##'
@@ -56,28 +54,27 @@
 ##'   if the schema has a 'definitions' list including a definition for a
 ##'   'Hello' object, one could pass "#/definitions/Hello" and the validator
 ##'   would check that the json is a valid "Hello" object. Only available if
-##'   \code{engine = 'ajv'}.
+##'   `engine = "ajv"`.
 ##'
 ##' @param strict Set whether the schema should be parsed strictly or not.
 ##'   If in strict mode schemas will error to "prevent any unexpected
 ##'   behaviours or silently ignored mistakes in user schema". For example
 ##'   it will error if encounters unknown formats or unknown keywords. See
 ##'   https://ajv.js.org/strict-mode.html for details. Only available in
-##'   \code{engine = 'ajv'}.
+##'   `engine = "ajv"`.
 ##'
 ##' @section Using multiple files:
 ##'
 ##' Multiple files are supported.  You can have a schema that
-##'   references a file \code{child.json} using \code{{"$ref":
-##'   "child.json"}} - in this case if \code{child.json} includes an
-##'   \code{id} or \code{$id} element it will be silently dropped and
-##'   the filename used to reference the schema will be used as the
-##'   schema id.
+##'   references a file `child.json` using `{"$ref": "child.json"}` -
+##'   in this case if `child.json` includes an `id` or `$id` element
+##'   it will be silently dropped and the filename used to reference
+##'   the schema will be used as the schema id.
 ##'
 ##' The support is currently quite limited - it will not (yet) read
-##'   sub-child schemas relative to child schema \code{$id} url, and
-##'   does not suppoort reading from URLs (only local files are
-##'   supoported).
+##'   sub-child schemas relative to child schema `$id` url, and
+##'   does not support reading from URLs (only local files are
+##'   supported).
 ##'
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
@@ -94,8 +91,8 @@ json_validator <- function(schema, engine = "imjv", reference = NULL,
 
 
 ##' Validate a single json against a schema.  This is a convenience
-##' wrapper around \code{json_validator(schema)(json)}.  See
-##' \code{\link{json_validator}} for further details.
+##' wrapper around `json_validator(schema)(json)`.  See
+##' [jsonvalidate::json_validator()] for further details.
 ##'
 ##' @title Validate a json file
 ##'
@@ -104,21 +101,21 @@ json_validator <- function(schema, engine = "imjv", reference = NULL,
 ##' @param json Contents of a json object, or a filename containing
 ##'   one.
 ##'
-##' @param verbose Be verbose?  If \code{TRUE}, then an attribute
+##' @param verbose Be verbose?  If `TRUE`, then an attribute
 ##'   "errors" will list validation failures as a data.frame
 ##'
 ##' @param greedy Continue after the first error?
 ##'
-##' @param error Throw an error on parse failure?  If \code{TRUE},
-##'   then the function returns \code{NULL} on success (i.e., call
+##' @param error Throw an error on parse failure?  If `TRUE`,
+##'   then the function returns `NULL` on success (i.e., call
 ##'   only for the side-effect of an error on failure, like
-##'   \code{stopifnot}).
+##'   `stopifnot`).
 ##'
 ##' @param query A string indicating a component of the data to
 ##'   validate the schema against.  Eventually this may support full
-##'   \href{https://www.npmjs.com/package/jsonpath}{jsonpath} syntax,
-##'   but for now this must be the name of an element within
-##'   \code{json}.  See the examples for more details.
+##'   [jsonpath](https://www.npmjs.com/package/jsonpath) syntax, but
+##'   for now this must be the name of an element within `json`.  See
+##'   the examples for more details.
 ##'
 ##' @export
 ##' @example man-roxygen/example-json_validate.R

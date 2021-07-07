@@ -1,6 +1,3 @@
-context("validator")
-
-
 ## NOTE: so far as I can see this is not valid json, nor is it
 ## sensible json schema (the 'required' kw should be an array)
 test_that("is-my-json-valid", {
@@ -78,7 +75,7 @@ test_that("verbose output", {
   v <- json_validator(str, "ajv")
   res <- v("{}", verbose = TRUE)
   expect_false(res)
-  expect_is(attr(res, "errors"), "data.frame")
+  expect_s3_class(attr(res, "errors"), "data.frame")
 })
 
 
@@ -237,7 +234,7 @@ test_that("can't use new schema versions with imjv", {
 
 test_that("package support", {
   res <- prepare_js()
-  expect_is(res, "V8")
+  expect_s3_class(res, "V8")
   expect_setequal(names(res$get("validators")),
                   c("imjv", "ajv"))
   s <- res$call("validator_stats")

@@ -1,5 +1,3 @@
-context("read")
-
 test_that("can't read empty input", {
   expect_error(read_schema(NULL, env$ct),
                "zero length input")

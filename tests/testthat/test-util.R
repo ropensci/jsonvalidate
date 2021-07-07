@@ -1,5 +1,3 @@
-context("util")
-
 test_that("get_string error cases", {
   expect_error(get_string(character(0), "thing"),
                "zero length input for thing")
