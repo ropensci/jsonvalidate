@@ -46,13 +46,15 @@ later than draft-04, validating using a subschema, and
 validating a subset of an input data object.
 
 If your schema uses these features we will print a message to
-screen indicating that you should update. We do not use a
-warning here as this will be disruptive to users. You can
-disable the message by setting the option
-\code{jsonvalidate.no_note_imjv} to \code{TRUE}. Consider
-using \code{\link[withr:with_options]{withr::with_options()}} (or simply
-\code{\link[=suppressMessages]{suppressMessages()}}) to scope this option if you want to
-quieten it within code you do not control.
+screen indicating that you should update when running
+interactively. We do not use a warning here as this will be
+disruptive to users. You can disable the message by setting the
+option \code{jsonvalidate.no_note_imjv} to \code{TRUE}. Consider using
+\code{\link[withr:with_options]{withr::with_options()}} (or simply \code{\link[=suppressMessages]{suppressMessages()}}) to
+scope this option if you want to quieten it within code you do
+not control.  Alternatively, setting the option
+\code{jsonvalidate.no_note_imjv} to \code{FALSE} will print the message
+even noninteractively.
 
 Updating the engine should be simply a case of adding \verb{\{engine = "ajv"} to your \code{json_validator} or \code{json_validate}
 calls, but you may see some issues when doing so.

@@ -53,8 +53,20 @@ set_names <- function(x, nms) {
 }
 
 
-note_imjv <- function(msg) {
-  if (!isTRUE(getOption("jsonvalidate.no_note_imjv", FALSE))) {
+note_imjv <- function(msg, is_interactive = interactive()) {
+  ## no_note_imjv  interactive => outcome
+  ##         NULL         TRUE    message
+  ##         NULL        FALSE    silent
+  ##        FALSE        <any>    message
+  ##         TRUE        <any>    silent
+  no_note_imjv <- getOption("jsonvalidate.no_note_imjv")
+
+  if (is.null(no_note_imjv)) {
+    show <- is_interactive
+  } else {
+    show <- !no_note_imjv
+  }
+  if (show) {
     message(msg)
   }
 }

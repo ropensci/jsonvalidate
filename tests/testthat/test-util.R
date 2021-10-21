@@ -32,11 +32,20 @@ test_that("control printing imjv notice", {
   testthat::skip_if_not_installed("withr")
   withr::with_options(
     list(jsonvalidate.no_note_imjv = NULL),
-    expect_message(note_imjv("note"), "note"))
+    expect_message(note_imjv("note", TRUE), "note"))
   withr::with_options(
     list(jsonvalidate.no_note_imjv = FALSE),
-    expect_message(note_imjv("note"), "note"))
+    expect_message(note_imjv("note", TRUE), "note"))
   withr::with_options(
     list(jsonvalidate.no_note_imjv = TRUE),
-    expect_silent(note_imjv("note")))
+    expect_silent(note_imjv("note", TRUE)))
+  withr::with_options(
+    list(jsonvalidate.no_note_imjv = NULL),
+    expect_silent(note_imjv("note", FALSE)))
+  withr::with_options(
+    list(jsonvalidate.no_note_imjv = FALSE),
+    expect_message(note_imjv("note", FALSE), "note"))
+  withr::with_options(
+    list(jsonvalidate.no_note_imjv = TRUE),
+    expect_silent(note_imjv("note", TRUE)))
 })

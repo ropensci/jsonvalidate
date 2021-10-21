@@ -13,13 +13,15 @@
 ##'   validating a subset of an input data object.
 ##'
 ##' If your schema uses these features we will print a message to
-##'   screen indicating that you should update. We do not use a
-##'   warning here as this will be disruptive to users. You can
-##'   disable the message by setting the option
-##'   `jsonvalidate.no_note_imjv` to `TRUE`. Consider
-##'   using [withr::with_options()] (or simply
-##'   [suppressMessages()]) to scope this option if you want to
-##'   quieten it within code you do not control.
+##'   screen indicating that you should update when running
+##'   interactively. We do not use a warning here as this will be
+##'   disruptive to users. You can disable the message by setting the
+##'   option `jsonvalidate.no_note_imjv` to `TRUE`. Consider using
+##'   [withr::with_options()] (or simply [suppressMessages()]) to
+##'   scope this option if you want to quieten it within code you do
+##'   not control.  Alternatively, setting the option
+##'   `jsonvalidate.no_note_imjv` to `FALSE` will print the message
+##'   even noninteractively.
 ##'
 ##' Updating the engine should be simply a case of adding `{engine
 ##'   = "ajv"` to your `json_validator` or `json_validate`
