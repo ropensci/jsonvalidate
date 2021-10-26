@@ -1,4 +1,13 @@
 import "core-js/es/set";
+import "core-js/es/map";
+import "core-js/features/array/find";
+import "core-js/features/array/find-index";
+import "core-js/features/array/from";
+import "core-js/features/array/includes";
+import "core-js/features/object/assign";
+import "core-js/features/string/starts-with";
+import "core-js/features/string/includes";
+
 global.Ajv = require('ajv');
 global.AjvSchema4 = require('ajv-draft-04');
 global.AjvSchema6 = require('ajv/dist/refs/json-schema-draft-06.json');
