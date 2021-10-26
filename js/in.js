@@ -105,9 +105,9 @@ global.get_meta_schema_version = function(schema) {
 };
 
 global.find_reference = function(x) {
-    deps = []
+    var deps = [];
 
-    f = function(x) {
+    var f = function(x) {
         if (Array.isArray(x)) {
             // need to descend into arrays as they're used for things
             // like oneOf or anyOf constructs.
@@ -127,7 +127,7 @@ global.find_reference = function(x) {
             // work on travis apparently.
             Object.keys(x).forEach(function(k) {f(x[k]);});
         }
-    }
+    };
     f(x);
     return deps;
 }
