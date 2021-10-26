@@ -7,4 +7,4 @@ echo "Working in $(pwd)"
 
 rm -rf node_modules
 npm install
-./node_modules/.bin/browserify in.js > bundle.js
+npm run webpack

@@ -10,3 +10,4 @@ js/node_modules
 js/bundle*js
 doc
 Meta
+.idea
