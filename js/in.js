@@ -21,7 +21,11 @@ global.ajv_create_object = function(meta_schema_version, strict) {
     // Need to disable strict mode, otherwise we get warnings
     // about unknown schema entries in draft-04 (e.g., presence of
     // const) and draft-07 (e.g. presence of "reference")
-    var opts = {allErrors: true, verbose: true, strict: strict};
+    var opts = {allErrors: true,
+                verbose: true,
+                unicodeRegExp: false,
+                strict: strict,
+                code: {es5: true}};
     if (meta_schema_version === "draft-04") {
         // Need to drop keywords present in later schema versions,
         // otherwise they seem to be not ignored (e.g., a schema that
