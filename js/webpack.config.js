@@ -3,6 +3,7 @@ const path = require("path");
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
+    mode: "none",
     target: ["web", "es5"],
     entry: "./in.js",
     output: {
@@ -15,7 +16,7 @@ module.exports = {
                 test: /\.m?js$/,
                 "exclude": [
                     /node_modules[\/]core-js/,
-                    /node_modules[\/]webpack[\/]buildin/,
+                    /node_modules[\/]webpack[\/]buildin/
                 ],
                 use: {
                     loader: 'babel-loader',
@@ -34,15 +35,15 @@ module.exports = {
                 terserOptions: {
                     format: {
                         comments: false,
-                    },
-                },
-            }),
-        ],
+                    }
+                }
+            })
+        ]
     },
     plugins: [
         new webpack.ProvidePlugin({
             process: 'process/browser',
-        }),
+        })
     ],
     resolve: {
         fallback: {
