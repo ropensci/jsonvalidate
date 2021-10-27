@@ -35,7 +35,7 @@ which will error if the bundle is invalid.
 To do a full reverse dependencies check with old libv8, you can bring up R in this container:
 
 ```
-docker run --rm -it -v $PWD:/src:ro richfitz/jsonvalidate:es5 R
+docker run --rm -it -v $PWD:/src:ro richfitz/jsonvalidate:es5 bash
 ```
 
 Then install revdepcheck itself
@@ -64,6 +64,8 @@ install.packages(c(
   "tableschema.r",
   "xml2"))
 ```
+
+At this point you will need to cycle the R session because the package DB will be corrupted by all the installations.
 
 Finally we can run the reverse dependency check:
 
