@@ -1,3 +1,7 @@
+## jsonvalidate 1.3.2
+
+* Always uses ES5 version of Ajv (#51)
+
 ## jsonvalidate 1.3.0
 
 * Upgrade to ajv version 8.5.0
