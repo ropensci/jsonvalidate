@@ -31,3 +31,44 @@ Rscript -e 'V8::new_context()$source("/src/inst/bundle.js")'
 ```
 
 which will error if the bundle is invalid.
+
+To do a full reverse dependencies check with old libv8, you can bring up R in this container:
+
+```
+docker run --rm -it -v $PWD:/src:ro richfitz/jsonvalidate:es5 R
+```
+
+Then install revdepcheck itself
+
+```
+install.packages("remotes")
+remotes::install_github("r-lib/revdepcheck", upgrade = TRUE)
+```
+
+Additional packages that we need, for some reason these did not get installed automatically though we'd have expected them to (see [this issue](https://github.com/r-lib/revdepcheck/issues/209))
+
+```
+install.packages(c(
+  "cinterpolate",
+  "deSolve",
+  "devtools",
+  "golem",
+  "inTextSummaryTable",
+  "patientProfilesVis",
+  "reticulate",
+  "rlist",
+  "shiny",
+  "shinyBS",
+  "shinydashboard",
+  "shinyjs",
+  "tableschema.r",
+  "xml2"))
+```
+
+Finally we can run the reverse dependency check:
+
+```
+unlink("/tmp/src", recursive = TRUE)
+file.copy("/src", "/tmp", recursive = TRUE)
+revdepcheck::revdep_check("/tmp/src", num_workers = 4)
+```
