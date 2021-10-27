@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "webpack": "webpack"
     },
     "keywords": [],
     "author": "",
@@ -17,11 +18,21 @@
         "url": "https://github.com/ropensci/jsonvalidate/issues"
     },
     "dependencies": {
+        "@babel/core": "^7.15.8",
+        "@babel/preset-env": "^7.15.8",
         "ajv": "^8.5.0",
         "ajv-draft-04": "^1.0.0",
         "ajv-formats": "^2.1.0",
-        "browserify": "^17.0.0",
-        "is-my-json-valid": "^2.17.2"
+        "babel-loader": "^8.2.3",
+        "core-js": "^3.19.0",
+        "is-my-json-valid": "^2.17.2",
+        "process": "^0.11.10",
+        "terser-webpack-plugin": "^5.2.4",
+        "util": "^0.12.4",
+        "webpack": "^5.60.0"
     },
-    "homepage": "https://github.com/ropensci/jsonvalidate#readme"
+    "homepage": "https://github.com/ropensci/jsonvalidate#readme",
+    "devDependencies": {
+        "webpack-cli": "^4.9.1"
+    }
 }

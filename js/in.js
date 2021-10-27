@@ -1,3 +1,4 @@
+import "core-js/es/set";
 global.Ajv = require('ajv');
 global.AjvSchema4 = require('ajv-draft-04');
 global.AjvSchema6 = require('ajv/dist/refs/json-schema-draft-06.json');
