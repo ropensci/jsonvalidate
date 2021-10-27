@@ -8,7 +8,7 @@ From the root directory of jsonvalidate source, run
 docker build --tag richfitz/jsonvalidate:es5 docker
 ```
 
-to build the image; this should not take that long. It installs the most recent copy of R for 18.04 (currently 3.4.4) and we should probably update this to use a ppa and get a recent copy.
+to build the image; this should not take that long. It installs the current r-release along with the CRAN versions of jsonvalidate and testthat (which ensures all core dependencies are present).
 
 Once setup, you can bring up a container with:
 
