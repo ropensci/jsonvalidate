@@ -16,3 +16,4 @@
 ^Meta$
 ^\.github$
 ^revdep$
+^docker$
