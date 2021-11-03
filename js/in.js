@@ -1,3 +1,13 @@
+import "core-js/es/set";
+import "core-js/es/map";
+import "core-js/features/array/find";
+import "core-js/features/array/find-index";
+import "core-js/features/array/from";
+import "core-js/features/array/includes";
+import "core-js/features/object/assign";
+import "core-js/features/string/starts-with";
+import "core-js/features/string/includes";
+
 global.Ajv = require('ajv');
 global.AjvSchema4 = require('ajv-draft-04');
 global.AjvSchema6 = require('ajv/dist/refs/json-schema-draft-06.json');
@@ -11,7 +21,11 @@ global.ajv_create_object = function(meta_schema_version, strict) {
     // Need to disable strict mode, otherwise we get warnings
     // about unknown schema entries in draft-04 (e.g., presence of
     // const) and draft-07 (e.g. presence of "reference")
-    var opts = {allErrors: true, verbose: true, strict: strict};
+    var opts = {allErrors: true,
+                verbose: true,
+                unicodeRegExp: false,
+                strict: strict,
+                code: {es5: true}};
     if (meta_schema_version === "draft-04") {
         // Need to drop keywords present in later schema versions,
         // otherwise they seem to be not ignored (e.g., a schema that
@@ -95,9 +109,9 @@ global.get_meta_schema_version = function(schema) {
 };
 
 global.find_reference = function(x) {
-    deps = []
+    var deps = [];
 
-    f = function(x) {
+    var f = function(x) {
         if (Array.isArray(x)) {
             // need to descend into arrays as they're used for things
             // like oneOf or anyOf constructs.
@@ -117,7 +131,7 @@ global.find_reference = function(x) {
             // work on travis apparently.
             Object.keys(x).forEach(function(k) {f(x[k]);});
         }
-    }
+    };
     f(x);
     return deps;
 }

@@ -1,14 +1,17 @@
 Package: jsonvalidate
 Title: Validate 'JSON' Schema
-Version: 1.3.1
+Version: 1.3.2
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
     email = "rich.fitzjohn@gmail.com"),
     person("Rob", "Ashton", role = "aut"),
+    person("Alex", "Hill", role = "ctb"),
     person("Alicia", "Schep", role = "ctb"),
     person("Ian", "Lyttle", role = "ctb"),
     person("Kara", "Woo", role = "ctb"),
-    person("Mathias", "Buus", role = "cph"),
-    person("Evgeny", "Poberezkin", role = "cph"))
+    person("Mathias", "Buus", role = c("aut", "cph"),
+           comment = "Author of bundled imjv library"),
+    person("Evgeny", "Poberezkin", role = c("aut", "cph"),
+           comment = "Author of bundled Ajv library"))
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
 Description: Uses the node library 'is-my-json-valid' or 'ajv' to
     validate 'JSON' against a 'JSON' schema.  Drafts 04, 06 and 07 of
