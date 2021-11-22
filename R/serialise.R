@@ -54,18 +54,21 @@
 ##' @return A string, representing `x` in JSON format
 ##' @export
 ##' @examples
-##' # TODO
+##' @example man-roxygen/example-json_serialise.R
 json_serialise <- function(x, schema) {
   if (is.character(schema)) {
     validator <- json_validator(schema, engine = "ajv")
-    v8 <- environment(validator)$v8
+    v8 <- attr(validator, "v8", exact = TRUE)
   } else if (inherits(schema, "function")) {
-    v8 <- environment(schema)$v8
+    engine <- attr(schema, "engine", exact = TRUE)
+    if (engine != "ajv") {
+      stop("json_serialise is only supported with engine 'ajv'")
+    }
+    v8 <- attr(schema, "v8")
   } else {
     stop("Invalid input for 'schema'")
   }
 
   str <- jsonlite::toJSON(x, auto_unbox = FALSE)
-
   v8$call("safeSerialise", str)
 }
