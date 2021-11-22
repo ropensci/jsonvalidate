@@ -78,6 +78,11 @@
 ##'   does not support reading from URLs (only local files are
 ##'   supported).
 ##'
+##' @return A function that can be used to validate a
+##'   schema. Additionally, the function has two attributes assigned:
+##'   `v8` which is the javascript context (used internally) and
+##'   `engine`, which contains the name of the engine used.
+##'
 ##' @export
 ##' @example man-roxygen/example-json_validator.R
 json_validator <- function(schema, engine = "imjv", reference = NULL,
@@ -85,10 +90,15 @@ json_validator <- function(schema, engine = "imjv", reference = NULL,
   v8 <- jsonvalidate_js()
   schema <- read_schema(schema, v8)
 
-  switch(engine,
-         imjv = json_validator_imjv(schema, v8, reference),
-         ajv = json_validator_ajv(schema, v8, reference, strict),
-         stop(sprintf("Unknown engine '%s'", engine)))
+  ret <- switch(engine,
+                imjv = json_validator_imjv(schema, v8, reference),
+                ajv = json_validator_ajv(schema, v8, reference, strict),
+                stop(sprintf("Unknown engine '%s'", engine)))
+
+  attr(ret, "v8") <- v8
+  attr(ret, "engine") <- engine
+
+  ret
 }
 
 
