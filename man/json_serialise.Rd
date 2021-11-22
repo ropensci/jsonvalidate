@@ -123,4 +123,8 @@ jsonvalidate::json_serialise(x, v)
 
 # ...and this way we do pass validation:
 v(jsonvalidate::json_serialise(x, v))
+
+# You can also call json_serialise directly with a schema definition
+# (rather than validator), though this is less efficient
+jsonvalidate::json_serialise(x, schema)
 }

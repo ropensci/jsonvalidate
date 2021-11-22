@@ -19,4 +19,22 @@ test_that("Can safely serialise a json object using a schema", {
   str <- json_serialise(x, v)
   expect_equal(str, '{"a":"x","b":["y"]}')
   expect_true(v(str))
+  expect_equal(json_serialise(x, schema), str)
+})
+
+
+test_that("Can't use imjv with serialise", {
+  v <- json_validator("{}", "imjv")
+  x <- list(a = "x", b = "y")
+  expect_error(
+    json_serialise(x, v),
+    "json_serialise is only supported with engine 'ajv'")
+})
+
+
+test_that("Require validator to use serialise", {
+  x <- list(a = "x", b = "y")
+  expect_error(
+    json_serialise(x, NULL),
+    "Invalid input for 'schema'")
 })
