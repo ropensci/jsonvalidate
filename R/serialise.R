@@ -51,7 +51,10 @@
 ##'   passed through to [jsonvalidate::json_validator] or a validator
 ##'   object itself.
 ##'
-##' @return A string, representing `x` in JSON format
+##' @return A string, representing `x` in JSON format. As for
+##'   `jsonlite::toJSON` we set the class attribute to be `json` to
+##'   mark it as serialised json.
+##'
 ##' @export
 ##' @examples
 ##' @example man-roxygen/example-json_serialise.R
@@ -70,5 +73,7 @@ json_serialise <- function(x, schema) {
   }
 
   str <- jsonlite::toJSON(x, auto_unbox = FALSE)
-  v8$call("safeSerialise", str)
+  ret <- v8$call("safeSerialise", str)
+  class(ret) <- "json"
+  ret
 }

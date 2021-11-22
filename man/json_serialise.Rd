@@ -14,7 +14,9 @@ passed through to \link{json_validator} or a validator
 object itself.}
 }
 \value{
-A string, representing \code{x} in JSON format
+A string, representing \code{x} in JSON format. As for
+\code{jsonlite::toJSON} we set the class attribute to be \code{json} to
+mark it as serialised json.
 }
 \description{
 Safe serialisation of json with unboxing guided by the schema.

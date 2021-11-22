@@ -17,7 +17,7 @@ test_that("Can safely serialise a json object using a schema", {
   v <- json_validator(schema, "ajv")
   x <- list(a = "x", b = "y")
   str <- json_serialise(x, v)
-  expect_equal(str, '{"a":"x","b":["y"]}')
+  expect_equal(str, structure('{"a":"x","b":["y"]}', class = "json"))
   expect_true(v(str))
   expect_equal(json_serialise(x, schema), str)
 })
