@@ -156,7 +156,7 @@ global.typeIsAtomic = function(t) {
     // the const one might be overly generous; it might be that a
     // constant non-atomic type is allowed.
     return t === "string" || t === "number" || t === "boolean" ||
-        t == "enum" || t == "const";
+        t == "enum" || t == "const" || t == "integer";
 }
 
 global.unboxable = function(x) {
