@@ -150,3 +150,59 @@ global.jsonpath_eval = function(data, query) {
     }
     return data[query];
 }
+
+
+global.typeIsAtomic = function(t) {
+    // the const one might be overly generous; it might be that a
+    // constant non-atomic type is allowed.
+    return t === "string" || t === "number" || t === "boolean" ||
+        t == "enum" || t == "const";
+}
+
+global.unboxable = function(x) {
+    return Array.isArray(x) && x.length === 1 && typeIsAtomic(typeof(x[0]));
+}
+
+global.fixUnboxable = function(x, schema) {
+    const atomics = ["string", "number", "boolean"];
+    var f = function(x, s, parent, index) {
+        if (Array.isArray(x)) {
+            if (typeIsAtomic(s.type) && unboxable(x)) {
+                if (parent === null) {
+                    x = x[0];
+                } else {
+                    parent[index] = x[0];
+                }
+            } else {
+                var descend = x.length > 0 &&
+                    typeof(x[0]) == "object" &&
+                    s.hasOwnProperty("items") &&
+                    (s.items.type === "object" || s.items.type == "array");
+                if (descend) {
+                    for (var i = 0; i < x.length; ++i) {
+                        f(x[i], s.items, x, i);
+                    }
+                }
+            }
+        } else if (typeof(x) === "object" && x !== null) {
+            if (s.type === "object") {
+                var keys = Object.keys(s.properties);
+                for (var i = 0; i < keys.length; ++i) {
+                    var k = keys[i];
+                    if (x.hasOwnProperty(k)) {
+                        f(x[k], s.properties[k], x, k);
+                    }
+                }
+            }
+        }
+        return x;
+    }
+
+    x = f(x, schema.schema, null);
+    return x;
+}
+
+global.safeSerialise = function(x) {
+    var x = JSON.parse(x);
+    return JSON.stringify(fixUnboxable(x, validator));
+}
