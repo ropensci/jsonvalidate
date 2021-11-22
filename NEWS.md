@@ -1,3 +1,7 @@
+## jsonvalidate 1.3.3
+
+* Support for safely serialising objects to json, guided by the schema, with new function `json_serialise`
+
 ## jsonvalidate 1.3.2
 
 * Always uses ES5 version of Ajv, which allows use in both current and "legacy" V8 (#51)
