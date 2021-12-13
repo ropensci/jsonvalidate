@@ -87,18 +87,7 @@
 ##' @example man-roxygen/example-json_validator.R
 json_validator <- function(schema, engine = "imjv", reference = NULL,
                            strict = FALSE) {
-  v8 <- jsonvalidate_js()
-  schema <- read_schema(schema, v8)
-
-  ret <- switch(engine,
-                imjv = json_validator_imjv(schema, v8, reference),
-                ajv = json_validator_ajv(schema, v8, reference, strict),
-                stop(sprintf("Unknown engine '%s'", engine)))
-
-  attr(ret, "v8") <- v8
-  attr(ret, "engine") <- engine
-
-  ret
+  json_schema$new(schema, engine, reference, strict)$validate
 }
 
 
@@ -140,77 +129,25 @@ json_validate <- function(json, schema, verbose = FALSE, greedy = FALSE,
 }
 
 
-json_validator_imjv <- function(schema, v8, reference) {
-  meta_schema_version <- schema$meta_schema_version %||% "draft-04"
-
-  if (!is.null(reference)) {
-    ## This one has to be an error; it has never worked and makes no
-    ## sense.
-    stop("subschema validation only supported with engine 'ajv'")
+json_validate_imjv <- function(v8, json, verbose = FALSE, greedy = FALSE,
+                               error = FALSE, query = NULL) {
+  if (!is.null(query)) {
+    stop("Queries are only supported with engine 'ajv'")
   }
-
-  if (meta_schema_version != "draft-04") {
-    ## We detect the version, so let the user know they are not really
-    ## getting what they're asking for
-    note_imjv(paste(
-      "meta schema version other than 'draft-04' is only supported with",
-      sprintf("engine 'ajv' (requested: '%s')", meta_schema_version),
-      "- falling back to use 'draft-04'"))
-    meta_schema_version <- "draft-04"
+  if (error) {
+    verbose <- TRUE
   }
-
-  if (length(schema$dependencies) > 0L) {
-    ## We've found references, but can't support them. Let the user
-    ## know.
-    note_imjv("Schema references are only supported with engine 'ajv'")
-  }
-
-  v8$call("imjv_create", meta_schema_version, V8::JS(schema$schema))
-
-  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
-                  query = NULL) {
-    if (!is.null(query)) {
-      stop("Queries are only supported with engine 'ajv'")
-    }
-    if (error) {
-      verbose <- TRUE
-    }
-    res <- v8$call("imjv_call", V8::JS(get_string(json)),
-                   verbose, greedy)
-    validation_result(res, error, verbose)
-  }
-
-  ret
+  res <- v8$call("imjv_call", V8::JS(get_string(json)),
+                 verbose, greedy)
+  validation_result(res, error, verbose)
 }
 
 
-json_validator_ajv <- function(schema, v8, reference, strict) {
-  meta_schema_version <- schema$meta_schema_version %||% "draft-07"
-
-  versions_legal <- c("draft-04", "draft-06", "draft-07", "draft/2019-09",
-                      "draft/2020-12")
-  if (!(meta_schema_version %in% versions_legal)) {
-    stop(sprintf("Unknown meta schema version '%s'", meta_schema_version))
-  }
-
-  if (is.null(reference)) {
-    reference <- V8::JS("null")
-  }
-  if (is.null(schema$filename)) {
-    schema$filename <- V8::JS("null")
-  }
-  dependencies <- V8::JS(schema$dependencies %||% "null")
-  v8$call("ajv_create", meta_schema_version, strict,
-          V8::JS(schema$schema), schema$filename, dependencies, reference)
-
-  ret <- function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
-                  query = NULL) {
-    res <- v8$call("ajv_call", V8::JS(get_string(json)),
-                   error || verbose, query_validate(query))
-    validation_result(res, error, verbose)
-  }
-
-  ret
+json_validate_ajv <- function(v8, json, verbose = FALSE, greedy = FALSE,
+                              error = FALSE, query = NULL) {
+  res <- v8$call("ajv_call", V8::JS(get_string(json)),
+                 error || verbose, query_validate(query))
+  validation_result(res, error, verbose)
 }
 
 

@@ -58,20 +58,19 @@
 ##' @export
 ##' @examples
 ##' @example man-roxygen/example-json_serialise.R
-json_serialise <- function(x, schema) {
-  if (is.character(schema)) {
-    validator <- json_validator(schema, engine = "ajv")
-    v8 <- attr(validator, "v8", exact = TRUE)
-  } else if (inherits(schema, "function")) {
-    engine <- attr(schema, "engine", exact = TRUE)
-    if (engine != "ajv") {
-      stop("json_serialise is only supported with engine 'ajv'")
-    }
-    v8 <- attr(schema, "v8")
-  } else {
-    stop("Invalid input for 'schema'")
-  }
+json_serialise <- function(x, schema, engine = "ajv", reference = NULL,
+                           strict = FALSE) {
+  obj <- json_schema$new(schema, engine, reference, strict)
+  obj$serialise(x)
+}
 
+
+json_serialise_imjv <- function(v8, x) {
+  stop("json_serialise is only supported with engine 'ajv'")
+}
+
+
+json_serialise_ajv <- function(v8, x) {
   str <- jsonlite::toJSON(x, auto_unbox = FALSE)
   ret <- v8$call("safeSerialise", str)
   class(ret) <- "json"
