@@ -60,7 +60,8 @@ https://ajv.js.org/strict-mode.html for details. Only available in
 }
 \description{
 Validate a single json against a schema.  This is a convenience
-wrapper around \code{json_validator(schema)(json)}.  See
+wrapper around \code{json_validator(schema)(json)} or
+\code{json_schema$new(schema, engine = "ajv")$validate(json)}.  See
 \code{\link[=json_validator]{json_validator()}} for further details.
 }
 \examples{

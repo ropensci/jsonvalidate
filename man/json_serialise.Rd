@@ -4,17 +4,23 @@
 \alias{json_serialise}
 \title{Safe JSON serialisation}
 \usage{
-json_serialise(x, schema)
+json_serialise(
+  object,
+  schema,
+  engine = "ajv",
+  reference = NULL,
+  strict = FALSE
+)
 }
 \arguments{
-\item{x}{An object to be serialised}
+\item{object}{An object to be serialised}
 
 \item{schema}{A schema (string or path to a string, suitable to be
 passed through to \link{json_validator} or a validator
 object itself.}
 }
 \value{
-A string, representing \code{x} in JSON format. As for
+A string, representing \code{object} in JSON format. As for
 \code{jsonlite::toJSON} we set the class attribute to be \code{json} to
 mark it as serialised json.
 }

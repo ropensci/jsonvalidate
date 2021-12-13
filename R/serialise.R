@@ -45,33 +45,32 @@
 ##'
 ##' @title Safe JSON serialisation
 ##'
-##' @param x An object to be serialised
+##' @param object An object to be serialised
 ##'
 ##' @param schema A schema (string or path to a string, suitable to be
 ##'   passed through to [jsonvalidate::json_validator] or a validator
 ##'   object itself.
 ##'
-##' @return A string, representing `x` in JSON format. As for
+##' @return A string, representing `object` in JSON format. As for
 ##'   `jsonlite::toJSON` we set the class attribute to be `json` to
 ##'   mark it as serialised json.
 ##'
 ##' @export
-##' @examples
 ##' @example man-roxygen/example-json_serialise.R
-json_serialise <- function(x, schema, engine = "ajv", reference = NULL,
+json_serialise <- function(object, schema, engine = "ajv", reference = NULL,
                            strict = FALSE) {
   obj <- json_schema$new(schema, engine, reference, strict)
-  obj$serialise(x)
+  obj$serialise(object)
 }
 
 
-json_serialise_imjv <- function(v8, x) {
+json_serialise_imjv <- function(v8, object) {
   stop("json_serialise is only supported with engine 'ajv'")
 }
 
 
-json_serialise_ajv <- function(v8, x) {
-  str <- jsonlite::toJSON(x, auto_unbox = FALSE)
+json_serialise_ajv <- function(v8, object) {
+  str <- jsonlite::toJSON(object, auto_unbox = FALSE)
   ret <- v8$call("safeSerialise", str)
   class(ret) <- "json"
   ret

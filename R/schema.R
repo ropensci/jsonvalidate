@@ -1,3 +1,17 @@
+##' @name json_schema
+##' @rdname json_schema
+##' @title Interact with JSON schemas
+##'
+##' @description Interact with JSON schemas, using them to validate
+##'   json strings or serialise objects to JSON safely.
+##'
+##' This interface supercedes [jsonvalidate::json_schema] and changes
+##'   some default arguments.  While the old interface is not going
+##'   away any time soon, users are encouraged to switch to this
+##'   interface, which is what we will develop in the future.
+##'
+##' @export
+##' @examples man-roxygen/example-json_schema.R
 json_schema <- R6::R6Class(
   "json_schema",
 
@@ -7,10 +21,38 @@ json_schema <- R6::R6Class(
     do_serialise = NULL),
 
   public = list(
+    ##' @field schema The parsed schema, cannot be rebound
     schema = NULL,
+
+    ##' @field engine The name of the schema validation engine
     engine = NULL,
 
-    initialize = function(schema, engine, reference = NULL, strict = FALSE) {
+    ##' @description Create a new `json_schema` object.
+    ##'
+    ##' @param schema Contents of the json schema, or a filename
+    ##'   containing a schema.
+    ##'
+    ##' @param engine Specify the validation engine to use.  Options are
+    ##'   "ajv" (the default; "Another JSON Schema Validator") or "imjv"
+    ##'  ("is-my-json-valid", the default everywhere in versions prior
+    ##'  to 1.4.0, and the default for [jsonvalidate::json_validator].
+    ##'  *Use of `ajv` is strongly recommended for all new code*.
+    ##'
+    ##' @param reference Reference within schema to use for validating
+    ##'   against a sub-schema instead of the full schema passed in.
+    ##'   For example if the schema has a 'definitions' list including a
+    ##'   definition for a 'Hello' object, one could pass
+    ##'   "#/definitions/Hello" and the validator would check that the json
+    ##'   is a valid "Hello" object. Only available if `engine = "ajv"`.
+    ##'
+    ##' @param strict Set whether the schema should be parsed strictly or not.
+    ##'   If in strict mode schemas will error to "prevent any unexpected
+    ##'   behaviours or silently ignored mistakes in user schema". For example
+    ##'   it will error if encounters unknown formats or unknown keywords. See
+    ##'   https://ajv.js.org/strict-mode.html for details. Only available in
+    ##'   `engine = "ajv"` and silently ignored for "imjv".
+    initialize = function(schema, engine = "ajv", reference = NULL,
+                          strict = FALSE) {
       v8 <- jsonvalidate_js()
       schema <- read_schema(schema, v8)
       if (engine == "imjv") {
@@ -25,17 +67,44 @@ json_schema <- R6::R6Class(
         stop(sprintf("Unknown engine '%s'", engine))
       }
 
+      self$engine <- engine
+      self$schema <- schema
       lockBinding("schema", self)
       lockBinding("engine", self)
     },
 
+    ##' Validate a json string against a schema.
+    ##'
+    ##' @param json Contents of a json object, or a filename containing
+    ##'   one.
+    ##'
+    ##' @param verbose Be verbose?  If `TRUE`, then an attribute
+    ##'   "errors" will list validation failures as a data.frame
+    ##'
+    ##' @param greedy Continue after the first error?
+    ##'
+    ##' @param error Throw an error on parse failure?  If `TRUE`,
+    ##'   then the function returns `NULL` on success (i.e., call
+    ##'   only for the side-effect of an error on failure, like
+    ##'   `stopifnot`).
+    ##'
+    ##' @param query A string indicating a component of the data to
+    ##'   validate the schema against.  Eventually this may support full
+    ##'   [jsonpath](https://www.npmjs.com/package/jsonpath) syntax, but
+    ##'   for now this must be the name of an element within `json`.  See
+    ##'   the examples for more details.
     validate = function(json, verbose = FALSE, greedy = FALSE, error = FALSE,
                         query = NULL) {
       private$do_validate(private$v8, json, verbose, greedy, error, query)
     },
 
-    serialise = function(x) {
-      private$do_serialise(private$v8, x)
+    ##' Serialise an R object to JSON with unboxing guided by the schema.
+    ##' See [jsonvalidate::json_serialise] for details on the problem and
+    ##' the algorithm.
+    ##'
+    ##' @param object An R object to serialise
+    serialise = function(object) {
+      private$do_serialise(private$v8, object)
     }
   ))
 
