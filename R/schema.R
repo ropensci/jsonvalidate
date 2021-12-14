@@ -10,6 +10,12 @@
 ##'   away any time soon, users are encouraged to switch to this
 ##'   interface, which is what we will develop in the future.
 ##'
+##' @example man-roxygen/example-json_serialise.R
+NULL
+
+## Workaround for https://github.com/r-lib/roxygen2/issues/1158
+
+##' @rdname json_schema
 ##' @export
 json_schema <- R6::R6Class(
   "json_schema",
