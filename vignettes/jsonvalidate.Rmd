@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-``` {r echo = FALSE, results = "hide"}
+```{r echo = FALSE, results = "hide"}
 knitr::opts_chunk$set(error = FALSE)
 ```
 
@@ -83,7 +83,8 @@ There are two ways of passing the schema in to R; as a string or as
 a filename.  If you have a large schema loading as a file will
 generally be easiest!  Here's a string representing the schema
 (watch out for escaping quotes):
-``` {r }
+
+```{r}
 schema <- '{
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "Product",
@@ -116,54 +117,53 @@ schema <- '{
 }'
 ```
 
-Create a validator:
-``` {r }
-v <- jsonvalidate::json_validator(schema)
+Create a schema object, which can be used to validate a schema:
+
+```{r}
+obj <- jsonvalidate::json_schema$new(schema)
 ```
 
 If we'd saved the json to a file, this would work too:
-``` {r }
+
+```{r}
 path <- tempfile()
 writeLines(schema, path)
-v <- jsonvalidate::json_validator(path)
+obj <- jsonvalidate::json_schema$new(path)
 ```
 
-``` {r include = FALSE}
+```{r include = FALSE}
 file.remove(path)
 ```
 
 The returned object is a function that takes as its first argument
 a json string, or a filename of a json file.  The empty list will
 fail validation because it does not contain any of the required fields:
-``` {r }
-v("{}")
+
+```{r}
+obj$validate("{}")
 ```
 
 To get more information on why the validation fails, add `verbose = TRUE`:
-``` {r }
-v("{}", verbose = TRUE)
+
+```{r}
+obj$validate("{}", verbose = TRUE)
 ```
 
 The attribute "errors" is a data.frame and is present only when the
 json fails validation.  The error messages come straight from
-`is-my-json-valid` and they may not always be that informative.
+`ajv` and they may not always be that informative.
 
 Alternatively, to throw an error if the json does not validate, add
 `error = TRUE` to the call:
-``` {r error = TRUE}
-v("{}", error = TRUE)
-```
 
-And to continue validating after the first error, pass `greedy = TRUE`:
-``` {r }
-v("{}", verbose = TRUE, greedy = TRUE)
+```{r error = TRUE}
+obj$validate("{}", error = TRUE)
 ```
-
-which will sometimes show more errors.
 
 The JSON from the opening example works:
-``` {r }
-v('{
+
+```{r}
+obj$validate('{
     "id": 1,
     "name": "A green door",
     "price": 12.50,
@@ -172,8 +172,9 @@ v('{
 ```
 
 But if we tried to enter a negative price it would fail:
-``` {r }
-v('{
+
+```{r}
+obj$validate('{
     "id": 1,
     "name": "A green door",
     "price": -1,
@@ -182,8 +183,9 @@ v('{
 ```
 
 ...or duplicate tags:
-``` {r }
-v('{
+
+```{r}
+obj$validate('{
     "id": 1,
     "name": "A green door",
     "price": 12.50,
@@ -192,8 +194,8 @@ v('{
 ```
 
 or just basically everything wrong:
-``` {r }
-v('{
+```{r}
+obj$validate('{
     "id": "identifier",
     "name": 1,
     "price": -1,
@@ -201,17 +203,28 @@ v('{
 }', verbose = TRUE)
 ```
 
-The `data.tags.2` name comes from within the `is-my-json-valid`
-source, and may be annoying to work with programmatically.
+The names comes from within the `ajv` source, and may be annoying to work with programmatically.
 
 There is also a simple interface where you take the schema and the
 json at the same time:
-``` {r }
+
+```{r}
 json <- '{
     "id": 1,
     "name": "A green door",
     "price": 12.50,
     "tags": ["home", "green"]
 }'
-jsonvalidate::json_validate(json, schema)
+jsonvalidate::json_validate(json, schema, engine = "ajv")
 ```
+
+However, this will be much slower than building the schema object once and using it repeatedly.
+
+Prior to 1.4.0, the recommended way of building a reusable validator object was to use `jsonvalidate::json_validator`; this is still supported but note that it has different defaults to `jsonvalidate::json_schema` (using imjv for backward compatibility).
+
+```{r}
+v <- jsonvalidate::json_validator(schema, engine = "ajv")
+v(json)
+```
+
+While we do not intend on removing this old interface, new code should prefer both `jsonvalidate::json_schema` and the `ajv` engine.
