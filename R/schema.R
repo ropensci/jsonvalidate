@@ -19,6 +19,7 @@ NULL
 ##' @export
 json_schema <- R6::R6Class(
   "json_schema",
+  cloneable = FALSE,
 
   private = list(
     v8 = NULL,

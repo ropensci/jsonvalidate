@@ -92,7 +92,6 @@ obj$validate(json)
 \item \href{#method-new}{\code{json_schema$new()}}
 \item \href{#method-validate}{\code{json_schema$validate()}}
 \item \href{#method-serialise}{\code{json_schema$serialise()}}
-\item \href{#method-clone}{\code{json_schema$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
@@ -188,23 +187,6 @@ the algorithm.}
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{object}}{An R object to serialise}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{json_schema$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
 }
 \if{html}{\out{</div>}}
 }
