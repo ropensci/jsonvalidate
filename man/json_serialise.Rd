@@ -18,6 +18,23 @@ json_serialise(
 \item{schema}{A schema (string or path to a string, suitable to be
 passed through to \link{json_validator} or a validator
 object itself.}
+
+\item{engine}{The engine to use. Only ajv is supported, and trying
+to use \code{imjv} will throw an error.}
+
+\item{reference}{Reference within schema to use for validating against a
+sub-schema instead of the full schema passed in. For example
+if the schema has a 'definitions' list including a definition for a
+'Hello' object, one could pass "#/definitions/Hello" and the validator
+would check that the json is a valid "Hello" object. Only available if
+\code{engine = "ajv"}.}
+
+\item{strict}{Set whether the schema should be parsed strictly or not.
+If in strict mode schemas will error to "prevent any unexpected
+behaviours or silently ignored mistakes in user schema". For example
+it will error if encounters unknown formats or unknown keywords. See
+https://ajv.js.org/strict-mode.html for details. Only available in
+\code{engine = "ajv"}.}
 }
 \value{
 A string, representing \code{object} in JSON format. As for
@@ -73,6 +90,15 @@ unboxable values will be found - at the moment we know that
 schemas contained within a \code{oneOf} block (or similar) will not be
 recursed into.
 }
+\section{}{
+ Warning:
+
+Direct use of this function will be slow!  If you are going to
+serialise more than one or two objects with a single schema, you
+should use the \code{serialise} method of a
+\link{json_schema} object which you create once and pass around.
+}
+
 \examples{
 # This is the schema from ?json_validator
 schema <- '{
@@ -127,12 +153,14 @@ v(jsonlite::toJSON(x, auto_unbox = TRUE))
 
 # Using json_serialise we can guide the serialisation process using
 # the schema:
-jsonvalidate::json_serialise(x, v)
+jsonvalidate::json_serialise(x, schema)
 
 # ...and this way we do pass validation:
-v(jsonvalidate::json_serialise(x, v))
+v(jsonvalidate::json_serialise(x, schema))
 
-# You can also call json_serialise directly with a schema definition
-# (rather than validator), though this is less efficient
-jsonvalidate::json_serialise(x, schema)
+# It is typically much more efficient to construct a json_schema
+# object first and do both operations with it:
+obj <- jsonvalidate::json_schema$new(schema)
+json <- obj$serialise(x)
+obj$validate(json)
 }

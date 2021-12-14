@@ -3,3 +3,9 @@ jsonvalidate_js <- function() {
   ct$source(system.file("bundle.js", package = "jsonvalidate"))
   ct
 }
+
+
+## Via Gabor, remove NOTE about Imports while not loading R6 at load.
+function() {
+  R6::R6Class
+}

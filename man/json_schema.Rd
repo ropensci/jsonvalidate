@@ -12,9 +12,6 @@ some default arguments.  While the old interface is not going
 away any time soon, users are encouraged to switch to this
 interface, which is what we will develop in the future.
 }
-\examples{
-man-roxygen/example-json_schema.R
-}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

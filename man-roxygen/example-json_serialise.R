@@ -51,11 +51,13 @@ v(jsonlite::toJSON(x, auto_unbox = TRUE))
 
 # Using json_serialise we can guide the serialisation process using
 # the schema:
-jsonvalidate::json_serialise(x, v)
+jsonvalidate::json_serialise(x, schema)
 
 # ...and this way we do pass validation:
-v(jsonvalidate::json_serialise(x, v))
+v(jsonvalidate::json_serialise(x, schema))
 
-# You can also call json_serialise directly with a schema definition
-# (rather than validator), though this is less efficient
-jsonvalidate::json_serialise(x, schema)
+# It is typically much more efficient to construct a json_schema
+# object first and do both operations with it:
+obj <- jsonvalidate::json_schema$new(schema)
+json <- obj$serialise(x)
+obj$validate(json)

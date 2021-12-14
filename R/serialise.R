@@ -43,6 +43,13 @@
 ##' schemas contained within a `oneOf` block (or similar) will not be
 ##' recursed into.
 ##'
+##' @section: Warning:
+##'
+##' Direct use of this function will be slow!  If you are going to
+##'   serialise more than one or two objects with a single schema, you
+##'   should use the `serialise` method of a
+##'   [jsonvalidate::json_schema] object which you create once and pass around.
+##'
 ##' @title Safe JSON serialisation
 ##'
 ##' @param object An object to be serialised
@@ -50,6 +57,11 @@
 ##' @param schema A schema (string or path to a string, suitable to be
 ##'   passed through to [jsonvalidate::json_validator] or a validator
 ##'   object itself.
+##'
+##' @param engine The engine to use. Only ajv is supported, and trying
+##'   to use `imjv` will throw an error.
+##'
+##' @inheritParams json_validate
 ##'
 ##' @return A string, representing `object` in JSON format. As for
 ##'   `jsonlite::toJSON` we set the class attribute to be `json` to

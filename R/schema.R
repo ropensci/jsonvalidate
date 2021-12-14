@@ -11,7 +11,6 @@
 ##'   interface, which is what we will develop in the future.
 ##'
 ##' @export
-##' @examples man-roxygen/example-json_schema.R
 json_schema <- R6::R6Class(
   "json_schema",
 
