@@ -164,7 +164,6 @@ global.unboxable = function(x) {
 }
 
 global.fixUnboxable = function(x, schema) {
-    const atomics = ["string", "number", "boolean"];
     var f = function(x, s, parent, index) {
         if (Array.isArray(x)) {
             if (typeIsAtomic(s.type) && unboxable(x)) {
