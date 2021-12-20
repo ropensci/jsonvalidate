@@ -220,16 +220,14 @@ test_that("can't use new schema versions with imjv", {
       }
     }
   }"
-  ct <- jsonvalidate_js()
-  schema <- read_schema(schema, ct)
   withr::with_options(
     list(jsonvalidate.no_note_imjv = FALSE),
     expect_message(
-      v <- json_validator_imjv(schema, ct, NULL),
+      v <- json_schema$new(schema, "imjv"),
       "meta schema version other than 'draft-04' is only supported with"))
   ## We incorrectly don't find this invalid, because imjv does not
   ## understand the const keyword.
-  expect_true(v('{"a": "bar"}'))
+  expect_true(v$validate('{"a": "bar"}'))
 })
 
 

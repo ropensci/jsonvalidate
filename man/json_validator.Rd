@@ -29,6 +29,12 @@ it will error if encounters unknown formats or unknown keywords. See
 https://ajv.js.org/strict-mode.html for details. Only available in
 \code{engine = "ajv"}.}
 }
+\value{
+A function that can be used to validate a
+schema. Additionally, the function has two attributes assigned:
+\code{v8} which is the javascript context (used internally) and
+\code{engine}, which contains the name of the engine used.
+}
 \description{
 Create a validator that can validate multiple json files.
 }

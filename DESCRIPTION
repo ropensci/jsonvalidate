@@ -1,6 +1,6 @@
 Package: jsonvalidate
 Title: Validate 'JSON' Schema
-Version: 1.3.2
+Version: 1.4.0
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
     email = "rich.fitzjohn@gmail.com"),
     person("Rob", "Ashton", role = "aut"),
@@ -21,6 +21,7 @@ URL: https://docs.ropensci.org/jsonvalidate/,
     https://github.com/ropensci/jsonvalidate
 BugReports: https://github.com/ropensci/jsonvalidate/issues
 Imports:
+    R6,
     V8
 Suggests:
     knitr,
