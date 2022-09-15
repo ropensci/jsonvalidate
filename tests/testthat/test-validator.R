@@ -287,6 +287,76 @@ test_that("Referenced schemas have their ids replaced", {
 })
 
 
+test_that("file references in subdirectories work", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "sub/child.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  subdir <- file.path(path, "sub")
+  dir.create(subdir)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(subdir, "child.json"))
+
+  v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v('{"hello": "world"}'))
+})
+
+
+test_that("chained file references work", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "sub/middle.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  middle <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "greeting": {',
+    '            "$ref": "child.json"',
+    '        }',
+    '    },',
+    '    "required": ["greeting"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  subdir <- file.path(path, "sub")
+  dir.create(subdir)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(middle, file.path(subdir, "middle.json"))
+  writeLines(child, file.path(subdir, "child.json"))
+
+  v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v('{"hello": { "greeting": "world"}}'))
+})
+
+
 test_that("Can validate fraction of a json object", {
   schema <- c(
     '{',
