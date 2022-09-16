@@ -70,3 +70,7 @@ note_imjv <- function(msg, is_interactive = interactive()) {
     message(msg)
   }
 }
+
+path_includes_dir <- function(x) {
+  !is.null(x) && basename(x) != x
+}

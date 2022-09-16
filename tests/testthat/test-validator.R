@@ -354,6 +354,48 @@ test_that("chained file references work", {
   v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
   expect_false(v("{}"))
   expect_true(v('{"hello": { "greeting": "world"}}'))
+  expect_false(v('{"hello": { "greeting": 2}}'))
+})
+
+
+test_that("chained file references return useful error", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "sub/middle.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  middle <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "greeting": {',
+    '            "$ref": "sub/child.json"',
+    '        }',
+    '    },',
+    '    "required": ["greeting"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  subdir <- file.path(path, "sub")
+  dir.create(subdir)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(middle, file.path(subdir, "middle.json"))
+  writeLines(child, file.path(subdir, "child.json"))
+  
+  expect_error(
+    json_validator(file.path(path, "parent.json"), engine = "ajv"),
+    "Did not find schema file 'sub/child.json' relative to 'sub/middle.json'")
 })
 
 
