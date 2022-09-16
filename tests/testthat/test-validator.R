@@ -389,13 +389,12 @@ test_that("absolute file references work", {
   dir.create(path)
   subdir <- file.path(path, "sub")
   dir.create(subdir)
-  child_path <- normalizePath(file.path(subdir, "child.json"), mustWork = FALSE)
+  child_path <- file.path(subdir, "child.json")
   writeLines(child, child_path)
-  middle_path <- normalizePath(file.path(subdir, "middle.json"),
-                               mustWork = FALSE)
-  writeLines(sprintf(middle, child_path), middle_path)
+  middle_path <- file.path(subdir, "middle.json")
+  writeLines(sprintf(middle, normalizePath(child_path)), middle_path)
   parent_path <- file.path(path, "parent.json")
-  writeLines(sprintf(parent, middle_path), parent_path)
+  writeLines(sprintf(parent, normalizePath(middle_path)), parent_path)
 
   v <- json_validator(parent_path, engine = "ajv")
   expect_false(v("{}"))
