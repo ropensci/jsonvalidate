@@ -1,3 +1,7 @@
+# jsonvalidate 1.4.1
+
+* Add support for subfolders in nested schema references. (#61)
+
 # jsonvalidate 1.4.0
 
 * Support for safely serialising objects to json, guided by the schema, with new function `json_serialise`

@@ -228,3 +228,80 @@ v(json)
 ```
 
 While we do not intend on removing this old interface, new code should prefer both `jsonvalidate::json_schema` and the `ajv` engine.
+
+## Combining schemas
+
+You can combine schemas with `ajv` engine. You can reference definitions within one schema
+
+```{r}
+schema <- '{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "city": { "type": "string" }
+  },
+  "type": "object",
+  "properties": {
+    "city": { "$ref": "#/definitions/city" }
+  }
+}'
+json <- '{
+    "city": "Firenze"
+}'
+jsonvalidate::json_validate(json, schema, engine = "ajv")
+```
+You can reference schema from other files
+
+```{r}
+city_schema <- '{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "string",
+  "enum": ["Firenze"]
+}'
+address_schema <- '{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type":"object",
+  "properties": {
+    "city": { "$ref": "city.json" }
+  }
+}'
+
+path <- tempfile()
+dir.create(path)
+address_path <- file.path(path, "address.json")
+city_path <- file.path(path, "city.json")
+writeLines(address_schema, address_path)
+writeLines(city_schema, city_path)
+jsonvalidate::json_validate(json, address_path, engine = "ajv")
+```
+
+You can combine schemas in subdirectories. Note that the `$ref` path needs to be relative to the schema path.
+
+```{r}
+user_schema = '{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "required": ["address"],
+  "properties": {
+    "address": {
+      "$ref": "sub/address.json"
+    }
+  }
+}'
+
+json <- '{
+  "address": {
+    "city": "Firenze"
+  }
+}'
+
+path <- tempfile()
+subdir <- file.path(path, "sub")
+dir.create(subdir, showWarnings = FALSE, recursive = TRUE)
+city_path <- file.path(subdir, "city.json")
+address_path <- file.path(subdir, "address.json")
+user_path <- file.path(path, "schema.json")
+writeLines(city_schema, city_path)
+writeLines(address_schema, address_path)
+writeLines(user_schema, user_path)
+jsonvalidate::json_validate(json, user_path, engine = "ajv")
+```
