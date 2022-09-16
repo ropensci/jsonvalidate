@@ -274,7 +274,7 @@ writeLines(city_schema, city_path)
 jsonvalidate::json_validate(json, address_path, engine = "ajv")
 ```
 
-You can combine schemas in subdirectories. Note that the `$ref` path needs to be relative to the schema path.
+You can combine schemas in subdirectories. Note that the `$ref` path needs to be relative to the schema path. You can also use absolute paths in `$ref`.
 
 ```{r}
 user_schema = '{
