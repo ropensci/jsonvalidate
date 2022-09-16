@@ -358,6 +358,52 @@ test_that("chained file references work", {
 })
 
 
+test_that("absolute file references work", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "%s"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  middle <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "greeting": {',
+    '            "$ref": "%s"',
+    '        }',
+    '    },',
+    '    "required": ["greeting"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  subdir <- file.path(path, "sub")
+  dir.create(subdir)
+  child_path <- normalizePath(file.path(subdir, "child.json"), mustWork = FALSE)
+  writeLines(child, child_path)
+  middle_path <- normalizePath(file.path(subdir, "middle.json"),
+                               mustWork = FALSE)
+  writeLines(sprintf(middle, child_path), middle_path)
+  parent_path <- file.path(path, "parent.json")
+  writeLines(sprintf(parent, middle_path), parent_path)
+
+  v <- json_validator(parent_path, engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v('{"hello": { "greeting": "world"}}'))
+  expect_false(v('{"hello": { "greeting": 2}}'))
+})
+
+
 test_that("chained file references return useful error", {
   parent <- c(
     '{',

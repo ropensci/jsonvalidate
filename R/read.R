@@ -46,8 +46,8 @@ read_schema_filename <- function(filename, children, parent, v8) {
   ## '$ref' path should be relative to schema ID so if parent is in a 
   ## subdir we need to add the dir to the filename so it can be sourced
   file_path <- filename
-  if (path_includes_dir(parent[1])) {
-    file_path <- file.path(dirname(parent[1]), filename)
+  if (path_includes_dir(parent[1]) && !R.utils::isAbsolutePath(file_path)) {
+    file_path <- file.path(dirname(parent[1]), file_path)
   }
   
   if (!file.exists(file_path)) {
