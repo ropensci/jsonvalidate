@@ -388,10 +388,8 @@ test_that("absolute file references throw error", {
                      normalizePath(child_path1), normalizePath(child_path2)),
     parent_path)
 
-  msg <- sprintf(
-    "'$ref' paths must be relative, got absolute path(s) '%s', '%s'",
-    child_path1, child_path2)
-  expect_error(json_validator(parent_path, engine = "ajv"), msg, fixed = TRUE)
+  expect_error(json_validator(parent_path, engine = "ajv"),
+               "'\\$ref' paths must be relative, got absolute path\\(s\\)")
 })
 
 
