@@ -43,13 +43,13 @@ read_schema <- function(x, v8) {
 
 
 read_schema_filename <- function(filename, children, parent, v8) {
-  ## '$ref' path should be relative to schema ID so if parent is in a 
+  ## '$ref' path should be relative to schema ID so if parent is in a
   ## subdir we need to add the dir to the filename so it can be sourced
   file_path <- filename
-  if (path_includes_dir(parent[1]) && !R.utils::isAbsolutePath(file_path)) {
+  if (path_includes_dir(parent[1])) {
     file_path <- file.path(dirname(parent[1]), file_path)
   }
-  
+
   if (!file.exists(file_path)) {
     additional_msg <- ""
     if (file_path != filename) {
@@ -88,6 +88,12 @@ read_schema_dependencies <- function(schema, children, parent, v8) {
 
   if (any(grepl("://", extra))) {
     stop("Don't yet support protocol-based sub schemas")
+  }
+
+  if (any(is_absolute_path(extra))) {
+    abs <- extra[is_absolute_path(extra)]
+    abs <- paste0("'", paste(abs, collapse = "', '"), "'")
+    stop(sprintf("'$ref' paths must be relative, got absolute path(s) %s", abs))
   }
 
   if (any(grepl("#/", extra))) {

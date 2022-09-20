@@ -21,7 +21,6 @@ URL: https://docs.ropensci.org/jsonvalidate/,
     https://github.com/ropensci/jsonvalidate
 BugReports: https://github.com/ropensci/jsonvalidate/issues
 Imports:
-    R.utils,
     R6,
     V8
 Suggests:
