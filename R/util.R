@@ -70,3 +70,11 @@ note_imjv <- function(msg, is_interactive = interactive()) {
     message(msg)
   }
 }
+
+path_includes_dir <- function(x) {
+  !is.null(x) && basename(x) != x
+}
+
+is_absolute_path <- function(path) {
+  grepl("^(/|[A-Za-z]:)", path)
+}

@@ -43,15 +43,26 @@ read_schema <- function(x, v8) {
 
 
 read_schema_filename <- function(filename, children, parent, v8) {
-  if (!file.exists(filename)) {
-    stop(sprintf("Did not find schema file '%s'", filename))
+  ## '$ref' path should be relative to schema ID so if parent is in a
+  ## subdir we need to add the dir to the filename so it can be sourced
+  file_path <- filename
+  if (path_includes_dir(parent[1])) {
+    file_path <- file.path(dirname(parent[1]), file_path)
   }
 
-  schema <- paste(readLines(filename), collapse = "\n")
+  if (!file.exists(file_path)) {
+    additional_msg <- ""
+    if (file_path != filename) {
+      additional_msg <- sprintf(" relative to '%s'", parent[1])
+    }
+    stop(sprintf("Did not find schema file '%s'%s", filename, additional_msg))
+  }
+
+  schema <- paste(readLines(file_path), collapse = "\n")
 
   meta_schema_version <- read_meta_schema_version(schema, v8)
-  read_schema_dependencies(schema, children, c(filename, parent), v8)
-  list(schema = schema, filename = filename,
+  read_schema_dependencies(schema, children, c(file_path, parent), v8)
+  list(schema = schema, filename = file_path,
        meta_schema_version = meta_schema_version)
 }
 
@@ -79,21 +90,27 @@ read_schema_dependencies <- function(schema, children, parent, v8) {
     stop("Don't yet support protocol-based sub schemas")
   }
 
+  if (any(is_absolute_path(extra))) {
+    abs <- extra[is_absolute_path(extra)]
+    abs <- paste0("'", paste(abs, collapse = "', '"), "'")
+    stop(sprintf("'$ref' paths must be relative, got absolute path(s) %s", abs))
+  }
+
   if (any(grepl("#/", extra))) {
     split <- strsplit(extra, "#/")
     extra <- lapply(split, "[[", 1)
   }
 
-  for (p in extra) {
+  for (ref in extra) {
     ## Mark name as one that we will not descend further with
-    children[[p]] <- NULL
+    children[[ref]] <- NULL
     ## I feel this should be easier to do with withCallingHandlers,
     ## but not getting anywhere there.
-    children[[p]] <- tryCatch(
-      read_schema_filename(p, children, parent, v8),
+    children[[ref]] <- tryCatch(
+      read_schema_filename(ref, children, parent, v8),
       error = function(e) {
         if (!inherits(e, "jsonvalidate_read_error")) {
-          chain <- paste(squote(c(rev(parent), p)), collapse = " > ")
+          chain <- paste(squote(c(rev(parent), ref)), collapse = " > ")
           e$message <- sprintf("While reading %s\n%s", chain, e$message)
           class(e) <- c("jsonvalidate_read_error", class(e))
           e$call <- NULL

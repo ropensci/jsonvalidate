@@ -287,6 +287,153 @@ test_that("Referenced schemas have their ids replaced", {
 })
 
 
+test_that("file references in subdirectories work", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "sub/child.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  subdir <- file.path(path, "sub")
+  dir.create(subdir)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(child, file.path(subdir, "child.json"))
+
+  v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v('{"hello": "world"}'))
+})
+
+
+test_that("chained file references work", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "sub/middle.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  middle <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "greeting": {',
+    '            "$ref": "child.json"',
+    '        }',
+    '    },',
+    '    "required": ["greeting"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  subdir <- file.path(path, "sub")
+  dir.create(subdir)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(middle, file.path(subdir, "middle.json"))
+  writeLines(child, file.path(subdir, "child.json"))
+
+  v <- json_validator(file.path(path, "parent.json"), engine = "ajv")
+  expect_false(v("{}"))
+  expect_true(v('{"hello": { "greeting": "world"}}'))
+  expect_false(v('{"hello": { "greeting": 2}}'))
+})
+
+
+test_that("absolute file references throw error", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "greeting": {',
+    '            "$ref": "%s"',
+    '        },',
+    '        "address": {',
+    '            "$ref": "%s"',
+    '        }',
+    '    },',
+    '    "required": ["greeting", "address"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  child_path1 <- file.path(path, "child1.json")
+  writeLines(child, child_path1)
+  child_path2 <- file.path(path, "child2.json")
+  writeLines(child, child_path2)
+  parent_path <- file.path(path, "parent.json")
+  writeLines(sprintf(paste0(parent, collapse = "\n"),
+                     normalizePath(child_path1), normalizePath(child_path2)),
+    parent_path)
+
+  expect_error(json_validator(parent_path, engine = "ajv"),
+               "'\\$ref' paths must be relative, got absolute path\\(s\\)")
+})
+
+
+test_that("chained file references return useful error", {
+  parent <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "hello": {',
+    '            "$ref": "sub/middle.json"',
+    '        }',
+    '    },',
+    '    "required": ["hello"],',
+    '    "additionalProperties": false',
+    '}')
+  middle <- c(
+    '{',
+    '    "type": "object",',
+    '    "properties": {',
+    '        "greeting": {',
+    '            "$ref": "sub/child.json"',
+    '        }',
+    '    },',
+    '    "required": ["greeting"],',
+    '    "additionalProperties": false',
+    '}')
+  child <- c(
+    '{',
+    '    "type": "string"',
+    '}')
+  path <- tempfile()
+  dir.create(path)
+  subdir <- file.path(path, "sub")
+  dir.create(subdir)
+  writeLines(parent, file.path(path, "parent.json"))
+  writeLines(middle, file.path(subdir, "middle.json"))
+  writeLines(child, file.path(subdir, "child.json"))
+
+  expect_error(
+    json_validator(file.path(path, "parent.json"), engine = "ajv"),
+    "Did not find schema file 'sub/child.json' relative to 'sub/middle.json'")
+})
+
+
 test_that("Can validate fraction of a json object", {
   schema <- c(
     '{',

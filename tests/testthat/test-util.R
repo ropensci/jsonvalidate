@@ -49,3 +49,9 @@ test_that("control printing imjv notice", {
     list(jsonvalidate.no_note_imjv = TRUE),
     expect_silent(note_imjv("note", TRUE)))
 })
+
+test_that("can check if path includes dir", {
+  expect_false(path_includes_dir(NULL))
+  expect_false(path_includes_dir("file.json"))
+  expect_true(path_includes_dir("the/file.json"))
+})
