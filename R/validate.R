@@ -23,7 +23,7 @@
 ##'   `jsonvalidate.no_note_imjv` to `FALSE` will print the message
 ##'   even noninteractively.
 ##'
-##' Updating the engine should be simply a case of adding `{engine
+##' Updating the engine should be simply a case of adding `engine
 ##'   = "ajv"` to your `json_validator` or `json_validate`
 ##'   calls, but you may see some issues when doing so.
 ##'
@@ -67,11 +67,11 @@
 ##'
 ##' @section Using multiple files:
 ##'
-##' Multiple files are supported.  You can have a schema that
-##'   references a file `child.json` using `{"$ref": "child.json"}` -
-##'   in this case if `child.json` includes an `id` or `$id` element
-##'   it will be silently dropped and the filename used to reference
-##'   the schema will be used as the schema id.
+##' Multiple files are supported.  You can have a schema that references
+##'   a file `child.json` using `{"$ref": "child.json"}`---in this case if
+##'   `child.json` includes an `id` or `$id` element it will be silently
+##'   dropped and the filename used to reference the schema will be used
+##'   as the schema id.
 ##'
 ##' The support is currently quite limited - it will not (yet) read
 ##'   sub-child schemas relative to child schema `$id` url, and
