@@ -89,14 +89,14 @@ obj$validate(json)
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{json_schema$new()}}
-\item \href{#method-validate}{\code{json_schema$validate()}}
-\item \href{#method-serialise}{\code{json_schema$serialise()}}
+\item \href{#method-json_schema-new}{\code{json_schema$new()}}
+\item \href{#method-json_schema-validate}{\code{json_schema$validate()}}
+\item \href{#method-json_schema-serialise}{\code{json_schema$serialise()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-json_schema-new"></a>}}
+\if{latex}{\out{\hypertarget{method-json_schema-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{json_schema} object.
 \subsection{Usage}{
@@ -134,8 +134,8 @@ Validate a json string against a schema.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-validate"></a>}}
-\if{latex}{\out{\hypertarget{method-validate}{}}}
+\if{html}{\out{<a id="method-json_schema-validate"></a>}}
+\if{latex}{\out{\hypertarget{method-json_schema-validate}{}}}
 \subsection{Method \code{validate()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{json_schema$validate(
@@ -176,8 +176,8 @@ the algorithm.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-serialise"></a>}}
-\if{latex}{\out{\hypertarget{method-serialise}{}}}
+\if{html}{\out{<a id="method-json_schema-serialise"></a>}}
+\if{latex}{\out{\hypertarget{method-json_schema-serialise}{}}}
 \subsection{Method \code{serialise()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{json_schema$serialise(object)}\if{html}{\out{</div>}}
