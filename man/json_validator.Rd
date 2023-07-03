@@ -62,7 +62,7 @@ not control.  Alternatively, setting the option
 \code{jsonvalidate.no_note_imjv} to \code{FALSE} will print the message
 even noninteractively.
 
-Updating the engine should be simply a case of adding \verb{\{engine = "ajv"} to your \code{json_validator} or \code{json_validate}
+Updating the engine should be simply a case of adding \code{engine = "ajv"} to your \code{json_validator} or \code{json_validate}
 calls, but you may see some issues when doing so.
 \itemize{
 \item Your json now fails validation: We've seen this where schemas
@@ -82,11 +82,11 @@ metaschema for example, jsonvalidate will fail
 \section{Using multiple files}{
 
 
-Multiple files are supported.  You can have a schema that
-references a file \code{child.json} using \code{{"$ref": "child.json"}} -
-in this case if \code{child.json} includes an \code{id} or \verb{$id} element
-it will be silently dropped and the filename used to reference
-the schema will be used as the schema id.
+Multiple files are supported.  You can have a schema that references
+a file \code{child.json} using \code{{"$ref": "child.json"}}---in this case if
+\code{child.json} includes an \code{id} or \verb{$id} element it will be silently
+dropped and the filename used to reference the schema will be used
+as the schema id.
 
 The support is currently quite limited - it will not (yet) read
 sub-child schemas relative to child schema \verb{$id} url, and
