@@ -6,16 +6,22 @@ get_string <- function(x, what = deparse(substitute(x))) {
     stop(sprintf("Expected a character vector for %s", what))
   }
 
-  ## TODO: this will get looked at in the next PR as we need to force
-  ## filenames better; it's not possible with this approach to error
-  ## if a file is missed through a typo.
-  if (length(x) == 1 && file.exists(x)) {
+  if (refers_to_file(x)) {
     x <- paste(readLines(x), collapse = "\n")
   } else if (length(x) > 1L) {
     x <- paste(x, collapse = "\n")
   }
 
   x
+}
+
+
+refers_to_file <- function(x) {
+  ## good reasons not to be a file:
+  if (length(x) != 1 || inherits(x, "json") || grepl("{", x, fixed = TRUE)) {
+    return(FALSE)
+  }
+  file.exists(x)
 }
 
 

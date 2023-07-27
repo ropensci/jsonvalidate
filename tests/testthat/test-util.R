@@ -13,6 +13,17 @@ test_that("get_string reads files as a string", {
 })
 
 
+test_that("detect probable files", {
+  path <- tempfile()
+  expect_false(refers_to_file('{"a": 1}'))
+  expect_false(refers_to_file(structure("1", class = "json")))
+  expect_false(refers_to_file(c("a", "b")))
+  expect_false(refers_to_file(path))
+  writeLines(c("some", "test"), path)
+  expect_true(refers_to_file(path))
+})
+
+
 test_that("get_string concatenates character vectors", {
   expect_equal(get_string(c("some", "text")),
                "some\ntext")
