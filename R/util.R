@@ -7,7 +7,7 @@ get_string <- function(x, what = deparse(substitute(x))) {
   }
 
   if (refers_to_file(x)) {
-    x <- paste(readLines(x), collapse = "\n")
+    x <- paste(readLines(x, warn = FALSE), collapse = "\n")
   } else if (length(x) > 1L) {
     x <- paste(x, collapse = "\n")
   }
