@@ -66,3 +66,14 @@ test_that("can check if path includes dir", {
   expect_false(path_includes_dir("file.json"))
   expect_true(path_includes_dir("the/file.json"))
 })
+
+test_that("can read file with no trailing newline", {
+  path <- tempfile()
+  writeLines("12345678", path, sep="")
+
+  # Check that we wrote just what we wanted and no more.
+  expect_equal(file.info(path)$size, 8)
+
+  result <- expect_silent(get_string(path))
+  expect_equal(result, "12345678")
+})
