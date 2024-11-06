@@ -43,7 +43,7 @@
 ##' schemas contained within a `oneOf` block (or similar) will not be
 ##' recursed into.
 ##'
-##' @section: Warning:
+##' # Warning
 ##'
 ##' Direct use of this function will be slow!  If you are going to
 ##'   serialise more than one or two objects with a single schema, you

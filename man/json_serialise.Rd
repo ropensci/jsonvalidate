@@ -90,9 +90,7 @@ unboxable values will be found - at the moment we know that
 schemas contained within a \code{oneOf} block (or similar) will not be
 recursed into.
 }
-\section{}{
- Warning:
-
+\section{Warning}{
 Direct use of this function will be slow!  If you are going to
 serialise more than one or two objects with a single schema, you
 should use the \code{serialise} method of a
