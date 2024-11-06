@@ -19,13 +19,13 @@ using [V8](https://cran.r-project.org/package=V8) to do JSON schema
 validation in R.
 
 You need a JSON schema file; see
-[json-schema.org](http://json-schema.org) for details on writing
+[json-schema.org](https://json-schema.org/) for details on writing
 these.  Often someone else has done the hard work of writing one
 for you, and you can just check that the JSON you are producing or
 consuming conforms to the schema.
 
 The examples below come from the [JSON schema
-website](http://json-schema.org/learn/getting-started-step-by-step.html)
+website](https://json-schema.org//learn/getting-started-step-by-step.html)
 
 They describe a JSON based product catalogue, where each product
 has an id, a name, a price, and an optional set of tags.  A JSON
@@ -44,7 +44,7 @@ The schema that they derive looks like this:
 
 ```json
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "https://json-schema.org//draft-04/schema#",
     "title": "Product",
     "description": "A product from Acme's catalog",
     "type": "object",
@@ -86,7 +86,7 @@ generally be easiest!  Here's a string representing the schema
 
 ```{r}
 schema <- '{
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "https://json-schema.org//draft-04/schema#",
     "title": "Product",
     "description": "A product from Acme\'s catalog",
     "type": "object",
@@ -235,7 +235,7 @@ You can combine schemas with `ajv` engine. You can reference definitions within 
 
 ```{r}
 schema <- '{
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "https://json-schema.org//draft-04/schema#",
   "definitions": {
     "city": { "type": "string" }
   },
@@ -253,12 +253,12 @@ You can reference schema from other files
 
 ```{r}
 city_schema <- '{
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "https://json-schema.org//draft-07/schema",
   "type": "string",
   "enum": ["Firenze"]
 }'
 address_schema <- '{
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "https://json-schema.org//draft-07/schema",
   "type":"object",
   "properties": {
     "city": { "$ref": "city.json" }
@@ -278,7 +278,7 @@ You can combine schemas in subdirectories. Note that the `$ref` path needs to be
 
 ```{r}
 user_schema = '{
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "https://json-schema.org//draft-07/schema",
   "type": "object",
   "required": ["address"],
   "properties": {
