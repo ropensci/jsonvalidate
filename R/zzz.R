@@ -6,6 +6,6 @@ jsonvalidate_js <- function() {
 
 
 ## Via Gabor, remove NOTE about Imports while not loading R6 at load.
-function() {
+ignore_unused_imports <- function() {
   R6::R6Class
 }
