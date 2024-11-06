@@ -44,7 +44,7 @@ The schema that they derive looks like this:
 
 ```json
 {
-    "$schema": "https://json-schema.org//draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "Product",
     "description": "A product from Acme's catalog",
     "type": "object",
@@ -86,7 +86,7 @@ generally be easiest!  Here's a string representing the schema
 
 ```{r}
 schema <- '{
-    "$schema": "https://json-schema.org//draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "Product",
     "description": "A product from Acme\'s catalog",
     "type": "object",
@@ -235,7 +235,7 @@ You can combine schemas with `ajv` engine. You can reference definitions within 
 
 ```{r}
 schema <- '{
-  "$schema": "https://json-schema.org//draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "definitions": {
     "city": { "type": "string" }
   },
@@ -253,12 +253,12 @@ You can reference schema from other files
 
 ```{r}
 city_schema <- '{
-  "$schema": "https://json-schema.org//draft-07/schema",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "type": "string",
   "enum": ["Firenze"]
 }'
 address_schema <- '{
-  "$schema": "https://json-schema.org//draft-07/schema",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "type":"object",
   "properties": {
     "city": { "$ref": "city.json" }
@@ -278,7 +278,7 @@ You can combine schemas in subdirectories. Note that the `$ref` path needs to be
 
 ```{r}
 user_schema = '{
-  "$schema": "https://json-schema.org//draft-07/schema",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "type": "object",
   "required": ["address"],
   "properties": {
