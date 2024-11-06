@@ -1,6 +1,9 @@
+CMD
+R's
 ajv
 arg
 codecov
+deserialise
 imjv
 io
 js
@@ -10,3 +13,4 @@ metaschema
 org
 ropensci
 subschema
+unboxable

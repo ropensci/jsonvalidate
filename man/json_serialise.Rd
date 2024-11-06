@@ -50,7 +50,7 @@ differences between R's types and those available in JSON. In
 particular:
 \itemize{
 \item R has no scalar types so it is not clear if \code{1} should be
-serialised as a number or a vector of length 1; jsonlite
+serialised as a number or a vector of length 1; \code{jsonlite}
 provides support for "automatically unboxing" such values
 (assuming that length-1 vectors are scalars) or never unboxing
 them unless asked to using \link[jsonlite:unbox]{jsonlite::unbox}
@@ -66,7 +66,7 @@ balancing precision and storage.
 
 These issues are somewhat lessened when we have a schema because
 we know what our target type looks like.  This function attempts
-to use the schema to guide serialsation of json safely.  Currently
+to use the schema to guide serialisation of json safely.  Currently
 it only supports detecting the appropriate treatment of length-1
 vectors, but we will expand functionality over time.
 

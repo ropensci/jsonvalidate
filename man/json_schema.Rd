@@ -7,7 +7,7 @@
 Interact with JSON schemas, using them to validate
 json strings or serialise objects to JSON safely.
 
-This interface supercedes \link{json_schema} and changes
+This interface supersedes \link{json_schema} and changes
 some default arguments.  While the old interface is not going
 away any time soon, users are encouraged to switch to this
 interface, which is what we will develop in the future.

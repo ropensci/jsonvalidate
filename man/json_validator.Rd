@@ -32,7 +32,7 @@ https://ajv.js.org/strict-mode.html for details. Only available in
 \value{
 A function that can be used to validate a
 schema. Additionally, the function has two attributes assigned:
-\code{v8} which is the javascript context (used internally) and
+\code{v8} which is the JavaScript context (used internally) and
 \code{engine}, which contains the name of the engine used.
 }
 \description{
@@ -60,7 +60,7 @@ option \code{jsonvalidate.no_note_imjv} to \code{TRUE}. Consider using
 scope this option if you want to quieten it within code you do
 not control.  Alternatively, setting the option
 \code{jsonvalidate.no_note_imjv} to \code{FALSE} will print the message
-even noninteractively.
+even non-interactively.
 
 Updating the engine should be simply a case of adding \code{engine = "ajv"} to your \code{json_validator} or \code{json_validate}
 calls, but you may see some issues when doing so.
