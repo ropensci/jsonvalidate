@@ -1,6 +1,6 @@
 Package: jsonvalidate
 Title: Validate 'JSON' Schema
-Version: 1.4.2
+Version: 1.5.0
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
     email = "rich.fitzjohn@gmail.com"),
     person("Rob", "Ashton", role = "aut"),
@@ -29,7 +29,7 @@ Suggests:
     rmarkdown,
     testthat,
     withr
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Encoding: UTF-8

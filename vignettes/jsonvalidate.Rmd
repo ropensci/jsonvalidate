@@ -19,13 +19,13 @@ using [V8](https://cran.r-project.org/package=V8) to do JSON schema
 validation in R.
 
 You need a JSON schema file; see
-[json-schema.org](http://json-schema.org) for details on writing
+[json-schema.org](https://json-schema.org/) for details on writing
 these.  Often someone else has done the hard work of writing one
 for you, and you can just check that the JSON you are producing or
 consuming conforms to the schema.
 
 The examples below come from the [JSON schema
-website](http://json-schema.org/learn/getting-started-step-by-step.html)
+website](https://json-schema.org//learn/getting-started-step-by-step.html)
 
 They describe a JSON based product catalogue, where each product
 has an id, a name, a price, and an optional set of tags.  A JSON

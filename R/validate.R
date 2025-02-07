@@ -21,7 +21,7 @@
 ##'   scope this option if you want to quieten it within code you do
 ##'   not control.  Alternatively, setting the option
 ##'   `jsonvalidate.no_note_imjv` to `FALSE` will print the message
-##'   even noninteractively.
+##'   even non-interactively.
 ##'
 ##' Updating the engine should be simply a case of adding `engine
 ##'   = "ajv"` to your `json_validator` or `json_validate`
@@ -80,7 +80,7 @@
 ##'
 ##' @return A function that can be used to validate a
 ##'   schema. Additionally, the function has two attributes assigned:
-##'   `v8` which is the javascript context (used internally) and
+##'   `v8` which is the JavaScript context (used internally) and
 ##'   `engine`, which contains the name of the engine used.
 ##'
 ##' @export
