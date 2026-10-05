@@ -1,3 +1,7 @@
+# jsonvalidate 1.5.1
+
+* The bundled validators are updated to Ajv 8.20.0 and is-my-json-valid 2.20.6, and every JavaScript build dependency to its newest release; the bundle is still ES5, and building it now checks that.
+
 # jsonvalidate 1.4.1
 
 * Add support for subfolders in nested schema references. (#61)

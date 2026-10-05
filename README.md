@@ -3,8 +3,8 @@
 <!-- badges: start -->
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![R-CMD-check](https://github.com/ropensci/jsonvalidate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ropensci/jsonvalidate/actions/workflows/R-CMD-check.yaml)
-[![codecov.io](https://codecov.io/github/ropensci/jsonvalidate/coverage.svg?branch=master)](https://app.codecov.io/github/ropensci/jsonvalidate?branch=master)
-[![](http://www.r-pkg.org/badges/version/jsonvalidate)](https://cran.r-project.org/package=jsonvalidate)
+[![Codecov test coverage](https://codecov.io/gh/ropensci/jsonvalidate/graph/badge.svg?branch=master)](https://app.codecov.io/github/ropensci/jsonvalidate?branch=master)
+[![CRAN status](https://www.r-pkg.org/badges/version/jsonvalidate)](https://cran.r-project.org/package=jsonvalidate)
 <!-- badges: end -->
 
 

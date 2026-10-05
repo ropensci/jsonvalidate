@@ -78,92 +78,88 @@ json <- obj$serialise(x)
 obj$validate(json)
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{schema}}{The parsed schema, cannot be rebound}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{schema}}{The parsed schema, cannot be rebound}
 
-\item{\code{engine}}{The name of the schema validation engine}
-}
-\if{html}{\out{</div>}}
+    \item{\code{engine}}{The name of the schema validation engine}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-json_schema-new}{\code{json_schema$new()}}
-\item \href{#method-json_schema-validate}{\code{json_schema$validate()}}
-\item \href{#method-json_schema-serialise}{\code{json_schema$serialise()}}
-}
+  \itemize{
+    \item \href{#method-json_schema-initialize}{\code{json_schema$new()}}
+    \item \href{#method-json_schema-validate}{\code{json_schema$validate()}}
+    \item \href{#method-json_schema-serialise}{\code{json_schema$serialise()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-json_schema-new"></a>}}
-\if{latex}{\out{\hypertarget{method-json_schema-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \code{json_schema} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{json_schema$new(schema, engine = "ajv", reference = NULL, strict = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{schema}}{Contents of the json schema, or a filename
+\if{html}{\out{<a id="method-json_schema-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-json_schema-initialize}{}}}
+\subsection{\code{json_schema$new()}}{
+  Create a new \code{json_schema} object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{json_schema$new(schema, engine = "ajv", reference = NULL, strict = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{schema}}{Contents of the json schema, or a filename
 containing a schema.}
-
-\item{\code{engine}}{Specify the validation engine to use.  Options are
+      \item{\code{engine}}{Specify the validation engine to use.  Options are
 "ajv" (the default; "Another JSON Schema Validator") or "imjv"
 ("is-my-json-valid", the default everywhere in versions prior
 to 1.4.0, and the default for \link{json_validator}.
 \emph{Use of \code{ajv} is strongly recommended for all new code}.}
-
-\item{\code{reference}}{Reference within schema to use for validating
+      \item{\code{reference}}{Reference within schema to use for validating
 against a sub-schema instead of the full schema passed in.
 For example if the schema has a 'definitions' list including a
 definition for a 'Hello' object, one could pass
 "#/definitions/Hello" and the validator would check that the json
 is a valid "Hello" object. Only available if \code{engine = "ajv"}.}
-
-\item{\code{strict}}{Set whether the schema should be parsed strictly or not.
+      \item{\code{strict}}{Set whether the schema should be parsed strictly or not.
 If in strict mode schemas will error to "prevent any unexpected
 behaviours or silently ignored mistakes in user schema". For example
 it will error if encounters unknown formats or unknown keywords. See
 https://ajv.js.org/strict-mode.html for details. Only available in
 \code{engine = "ajv"} and silently ignored for "imjv".
 Validate a json string against a schema.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-json_schema-validate"></a>}}
 \if{latex}{\out{\hypertarget{method-json_schema-validate}{}}}
-\subsection{Method \code{validate()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{json_schema$validate(
+\subsection{\code{json_schema$validate()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{json_schema$validate(
   json,
   verbose = FALSE,
   greedy = FALSE,
   error = FALSE,
   query = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{json}}{Contents of a json object, or a filename containing
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{json}}{Contents of a json object, or a filename containing
 one.}
-
-\item{\code{verbose}}{Be verbose?  If \code{TRUE}, then an attribute
+      \item{\code{verbose}}{Be verbose?  If \code{TRUE}, then an attribute
 "errors" will list validation failures as a data.frame}
-
-\item{\code{greedy}}{Continue after the first error?}
-
-\item{\code{error}}{Throw an error on parse failure?  If \code{TRUE},
+      \item{\code{greedy}}{Continue after the first error?}
+      \item{\code{error}}{Throw an error on parse failure?  If \code{TRUE},
 then the function returns \code{NULL} on success (i.e., call
 only for the side-effect of an error on failure, like
 \code{stopifnot}).}
-
-\item{\code{query}}{A string indicating a component of the data to
+      \item{\code{query}}{A string indicating a component of the data to
 validate the schema against.  Eventually this may support full
 \href{https://www.npmjs.com/package/jsonpath}{jsonpath} syntax, but
 for now this must be the name of an element within \code{json}.  See
@@ -171,24 +167,27 @@ the examples for more details.
 Serialise an R object to JSON with unboxing guided by the schema.
 See \link{json_serialise} for details on the problem and
 the algorithm.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-json_schema-serialise"></a>}}
 \if{latex}{\out{\hypertarget{method-json_schema-serialise}{}}}
-\subsection{Method \code{serialise()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{json_schema$serialise(object)}\if{html}{\out{</div>}}
+\subsection{\code{json_schema$serialise()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{json_schema$serialise(object)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{object}}{An R object to serialise}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{object}}{An R object to serialise}
-}
-\if{html}{\out{</div>}}
-}
-}
 }
