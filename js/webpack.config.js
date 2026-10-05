@@ -21,7 +21,12 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env']
+                        presets: [['@babel/preset-env', {
+                            // Babel 8 compiles for browserslist "defaults" when
+                            // no target is given; the bundle must stay ES5 for
+                            // the legacy V8 engine, which Babel 7 did by default.
+                            targets: {ie: '11'}
+                        }]]
                     }
                 }
             }

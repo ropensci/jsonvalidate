@@ -8,3 +8,5 @@ echo "Working in $(pwd)"
 rm -rf node_modules
 npm install
 npm run webpack
+# The bundle must parse as ES5 for the legacy V8 engine.
+npm run check-es5

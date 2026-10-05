@@ -179,3 +179,79 @@ test_that("can reference subsets of other schema", {
   expect_equal(length(schema$dependencies), 1)
   expect_equal(jsonlite::fromJSON(schema$dependencies)$id, "b.json")
 })
+
+
+test_that("a property named $ref is not read as a reference", {
+  ct <- jsonvalidate_js()
+  schema <- '{
+    "definitions": {"name": {"type": "string"}},
+    "properties": {
+      "$ref": {"type": "string"},
+      "name": {"$ref": "#/definitions/name"}
+    }
+  }'
+  expect_equal(find_schema_dependencies(schema, ct), "#/definitions/name")
+  expect_equal(
+    find_schema_dependencies('{"properties": {"$ref": {"type": "string"}}}', ct),
+    list())
+})
+
+
+test_that("draft-04 schema shaped like the OpenAPI 3.0 metaschema", {
+  ## The OpenAPI 3.0 metaschema's PathItem has a property named "$ref"
+  ## beside ordinary references to its own definitions.
+  schema <- '{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": ["paths"],
+    "properties": {
+      "paths": {
+        "type": "object",
+        "additionalProperties": {"$ref": "#/definitions/PathItem"}
+      }
+    },
+    "definitions": {
+      "PathItem": {
+        "type": "object",
+        "properties": {
+          "$ref": {"type": "string"},
+          "summary": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  }'
+  for (engine in c("imjv", "ajv")) {
+    v <- json_validator(schema, engine = engine)
+    expect_true(v('{"paths": {"/a": {"$ref": "#/b", "summary": "s"}}}'))
+    expect_false(v('{"paths": {"/a": {"$ref": 1}}}'))
+    expect_false(v('{"paths": {"/a": {"other": "s"}}}'))
+  }
+})
+
+
+test_that("2020-12 schema shaped like the OpenAPI 3.1 metaschema", {
+  ## The OpenAPI 3.1 metaschema's Reference object declares "$ref" in
+  ## `properties` and is itself referenced through `$defs`.
+  schema <- '{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "parameter": {"$ref": "#/$defs/reference"}
+    },
+    "$defs": {
+      "reference": {
+        "type": "object",
+        "properties": {
+          "$ref": {"type": "string", "format": "uri-reference"},
+          "summary": {"type": "string"}
+        },
+        "required": ["$ref"]
+      }
+    }
+  }'
+  v <- json_validator(schema, engine = "ajv")
+  expect_true(v('{"parameter": {"$ref": "#/components/parameters/a"}}'))
+  expect_false(v('{"parameter": {"$ref": 1}}'))
+  expect_false(v('{"parameter": {"summary": "no reference"}}'))
+})

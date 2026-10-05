@@ -793,3 +793,74 @@ test_that("ajv requires a valid meta schema version", {
     json_validator(schema, engine = "ajv"),
     "Unknown meta schema version 'draft-99'")
 })
+
+
+test_that("2020-12 applicator keywords are supported by ajv", {
+  schema <- '{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "pair": {
+        "type": "array",
+        "prefixItems": [{"type": "string"}, {"type": "number"}],
+        "items": false
+      }
+    },
+    "dependentRequired": {"pair": ["label"]},
+    "unevaluatedProperties": false,
+    "allOf": [{"properties": {"label": {"type": "string"}}}]
+  }'
+  v <- json_validator(schema, engine = "ajv")
+  expect_true(v('{"pair": ["a", 1], "label": "x"}'))
+  expect_false(v('{"pair": ["a", 1, 2], "label": "x"}'))
+  expect_false(v('{"pair": ["a", 1]}'))
+  expect_false(v('{"pair": ["a", 1], "label": "x", "other": 1}'))
+})
+
+
+test_that("2020-12 $dynamicRef resolves to a $dynamicAnchor at the root", {
+  schema <- '{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/tree",
+    "$dynamicAnchor": "node",
+    "type": "object",
+    "properties": {
+      "children": {"type": "array", "items": {"$dynamicRef": "#node"}}
+    }
+  }'
+  v <- json_validator(schema, engine = "ajv")
+  expect_true(v('{"children": [{"children": []}]}'))
+  expect_false(v('{"children": [1]}'))
+})
+
+
+## The OpenAPI 3.1 metaschema routes every Schema Object through
+## "$dynamicRef": "#meta", whose only "$dynamicAnchor" is inside $defs.
+## Ajv resolves a $dynamicRef to the resource root instead of an anchor
+## declared below it (ajv issue 1745, open), so the bundled Ajv rejects
+## valid instances of schemas shaped this way.  The first expectation
+## pins that limitation, so a bundled Ajv that resolves the anchor fails
+## it.
+test_that("2020-12 $dynamicAnchor below the root is not resolved (ajv limitation)", {
+  schema <- '{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {"schema": {"$dynamicRef": "#meta"}},
+    "unevaluatedProperties": false,
+    "$defs": {
+      "schema": {"$dynamicAnchor": "meta", "type": ["object", "boolean"]}
+    }
+  }'
+  v <- json_validator(schema, engine = "ajv")
+  expect_false(v('{"schema": {"type": "string"}}'))
+  expect_true(v('{}'))
+
+  ## With a single "meta" anchor and no outer dynamic scope, a static
+  ## $ref to the anchored subschema is the same reference, and works.
+  static <- sub('"$dynamicRef": "#meta"', '"$ref": "#/$defs/schema"',
+                schema, fixed = TRUE)
+  v <- json_validator(static, engine = "ajv")
+  expect_true(v('{"schema": {"type": "string"}}'))
+  expect_true(v('{"schema": true}'))
+  expect_false(v('{"schema": 1}'))
+})

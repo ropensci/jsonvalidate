@@ -45,7 +45,7 @@ mark it as serialised json.
 Safe serialisation of json with unboxing guided by the schema.
 }
 \details{
-When using \link[jsonlite:fromJSON]{jsonlite::toJSON} we are forced to deal with the
+When using \link[jsonlite:toJSON]{jsonlite::toJSON} we are forced to deal with the
 differences between R's types and those available in JSON. In
 particular:
 \itemize{
@@ -75,7 +75,7 @@ for \code{jsonlite::toJSON}, accepting an R object and returning a
 string with the JSON representation of the object. Internally the
 algorithm is:
 \enumerate{
-\item serialise the object with \link[jsonlite:fromJSON]{jsonlite::toJSON}, with
+\item serialise the object with \link[jsonlite:toJSON]{jsonlite::toJSON}, with
 \code{auto_unbox = FALSE} so that length-1 vectors are serialised as a
 length-1 arrays.
 \item operating entirely within JavaScript, deserialise the object

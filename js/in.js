@@ -124,7 +124,12 @@ global.find_reference = function(x) {
             // > by the validator
             //
             // though this turns not to be true empirically...
-            if ("$ref" in x) {
+            //
+            // A schema may also define a property *named* "$ref", as
+            // the OpenAPI metaschemas do for their Reference and
+            // PathItem objects; its value is a subschema, not a
+            // reference.  Only a string value is a reference.
+            if ("$ref" in x && typeof(x["$ref"]) === "string") {
                 deps.push(x["$ref"]);
             }
             // Would be nicer with Object.values but that does not

@@ -135,6 +135,8 @@ read_meta_schema_version <- function(schema, v8) {
 }
 
 
+## Only string $ref values are references (a property *named* "$ref"
+## holds a subschema); find_reference in inst/bundle.js makes that cut.
 find_schema_dependencies <- function(schema, v8) {
   v8$call("find_reference", V8::JS(schema))
 }
